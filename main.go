@@ -37,7 +37,7 @@ func main() {
 	}
 
 	// check auth middleware
-	r.GET("/api/validate", middleware.RequireAuth, customerauthcontroller.Validate)
+	r.GET("/api/validates", middleware.RequireAuth, customerauthcontroller.Validate)
 
 
 	r.Run()
