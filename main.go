@@ -1,7 +1,10 @@
 package main
 
 import (
+	adminauthcontroller "backend-atmakitchen/controllers/admincontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
+	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
+	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	"backend-atmakitchen/controllers/rolecontroller"
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
@@ -46,6 +49,24 @@ func main() {
 		{
 			role.POST("/", rolecontroller.Create);
 		}
+
+		admin.POST("/login", adminauthcontroller.Login)
+		admin.POST("/logout", adminauthcontroller.Logout)
+	}
+
+	// mo
+	mo := r.Group("/api/mo")
+	{			
+		mo.POST("/login", moauthcontrollerauthcontroller.Login)
+		mo.POST("/logout", moauthcontrollerauthcontroller.Logout)	
+	}
+
+
+	// owner
+	owner := r.Group("/api/owner")
+	{			
+		owner.POST("/login", ownerauthcontroller.Login)
+		owner.POST("/logout", ownerauthcontroller.Logout)	
 	}
 
 	// check auth middleware
