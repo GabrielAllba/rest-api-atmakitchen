@@ -17,6 +17,18 @@ func init() {
 
 func main() {
 	r := gin.Default()
+	
+	r.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+        c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        c.Header("Access-Control-Allow-Headers", "Origin, Authorization, Content-Type")
+        c.Header("Access-Control-Allow-Credentials", "true")
+		if c.Request.Method == "OPTIONS" {
+            c.AbortWithStatus(204)
+            return
+        }
+		c.Next()
+	})
 
 	// customer
 	user := r.Group("/api/customer")

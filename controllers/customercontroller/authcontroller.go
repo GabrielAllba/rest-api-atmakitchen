@@ -2,6 +2,7 @@ package customerauthcontroller
 
 import (
 	"backend-atmakitchen/models"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,42 +16,33 @@ import (
 func Signup(c *gin.Context){
 	var user models.User
 
-	// string
-	user.Email = c.PostForm("email")
-	user.Name = c.PostForm("name")
-	user.Username = c.PostForm("username")
-	user.Password = c.PostForm("password")
-	bornDateString := c.PostForm("born_date")
-	user.PhoneNumber = c.PostForm("phone_number")
-	totalPointStr := c.PostForm("total_point")
-	roleIdStr := c.PostForm("role_id")
+	// Bind JSON data to user struct
+	if err := c.BindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// validitas semua input terisi
 	if user.Email == "" || user.Name == "" || user.Username == "" || user.Password == "" ||
-		bornDateString == "" || user.PhoneNumber == "" || totalPointStr == "" || roleIdStr == "" {
+		user.BornDate == "" || user.PhoneNumber == "" || strconv.Itoa(user.TotalPoint) == "" || strconv.Itoa(user.RoleId) == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Pastikan semua input terisi"})
 		return
 	}
 
-	// born date
 	
-	bornDate, err := time.Parse("2006-01-02", bornDateString)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Format tanggal lahir tidak sesuai"})
-		return
-	}
-	user.BornDate = bornDate
+	
 
 	// total point	
-	totalPoint, err := strconv.Atoi(totalPointStr)
+	totalP, err := strconv.Atoi(strconv.Itoa(user.TotalPoint))
 	if(err != nil){
+		fmt.Print(totalP)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Total point invalid"})
 		return
 	}
-	user.TotalPoint = totalPoint
+	
 
 	// role id
-	roleId, err := strconv.Atoi(roleIdStr)
+	roleId, err := strconv.Atoi(strconv.Itoa(user.RoleId))
 	if err != nil {
 		
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Format role id tidak benar"})
@@ -108,11 +100,13 @@ func Login(c *gin.Context){
 	var req_user models.User
 
 	// Bind other form data fields
-	req_user.Email = c.PostForm("email")
-	req_user.Password = c.PostForm("password")
+	if err := c.BindJSON(&req_user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if req_user.Email == "" || req_user.Password == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Email dan password tidak boleh kosong"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email dan Password harus diisi"})
 		return
 	}
 
