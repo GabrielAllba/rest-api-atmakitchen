@@ -2,9 +2,12 @@ package main
 
 import (
 	adminauthcontroller "backend-atmakitchen/controllers/admincontroller"
+	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
+	"backend-atmakitchen/controllers/productcontroller"
+	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/rolecontroller"
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
@@ -68,6 +71,26 @@ func main() {
 		owner.POST("/login", ownerauthcontroller.Login)
 		owner.POST("/logout", ownerauthcontroller.Logout)	
 	}
+
+	// product type
+	product_type := r.Group("/api/product_type")
+	{			
+		product_type.POST("/", producttypecontroller.Create);
+	}
+
+	// consignation
+	consignation := r.Group("/api/consignation")
+	{			
+		consignation.POST("/", consignationcontroller.Create);
+	}
+
+	// product
+	product := r.Group("/api/product")
+	{			
+		product.POST("/", productcontroller.Create);
+	}
+
+
 
 	// check auth middleware
 	r.GET("/api/validates", middleware.RequireAuth, customerauthcontroller.Validate)

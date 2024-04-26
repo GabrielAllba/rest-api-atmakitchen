@@ -14,21 +14,19 @@ func Create(c *gin.Context) {
 	var role models.Role
 
 	
-	role.Name = c.PostForm("name")
-	gajiHarianStr := c.PostForm("gaji_harian")
+	// Bind JSON data to user struct
+	if err := c.BindJSON(&role); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	
 	
-	if role.Name == "" || gajiHarianStr == "" {
+	if role.Name == "" || strconv.Itoa(int(role.GajiHarian)) == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}
 
-	nominal, err := strconv.Atoi(gajiHarianStr)
-	if(err != nil){
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Total point invalid"})
-		return
-	}
-	role.GajiHarian = float32(nominal)
+
 
 	var existingRole models.Role
 
