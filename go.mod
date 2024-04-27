@@ -2,6 +2,8 @@ module backend-atmakitchen
 
 go 1.22.1
 
+require github.com/google/uuid v1.6.0
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.4 // indirect
@@ -9,6 +11,7 @@ require (
 	github.com/cloudwego/base64x v0.1.0 // indirect
 	github.com/cloudwego/iasm v0.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
+	github.com/gin-contrib/cors v1.7.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.9.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
