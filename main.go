@@ -12,6 +12,7 @@ import (
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
 	"backend-atmakitchen/models"
+	"path/filepath"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,11 @@ func init() {
 	initializers.LoadEnvVariable()
 	models.ConnectDatabase()
 }
+func getImage(c *gin.Context) {
+    	filename := c.Param("filename")
+    	imagePath := filepath.Join("images", filename)
+    	c.File(imagePath)
+	}
 
 func main() {
 	r := gin.Default()
@@ -42,6 +48,13 @@ func main() {
 	product := r.Group("/api/product")
 	{			
 		product.POST("", productcontroller.Create);
+		product.GET("", productcontroller.Index)
+		product.GET("/:id", productcontroller.Show)
+		product.GET("/search", productcontroller.Search)
+		product.DELETE("/:id", productcontroller.Delete)
+		product.PUT("/:id", productcontroller.Update);
+
+
 	}
 
 
@@ -98,6 +111,10 @@ func main() {
 	
 
 
+	
+
+	// Define the route
+	r.GET("/api/images/:filename", getImage)
 	
 	// check auth middleware
 	r.GET("/api/validates", middleware.RequireAuth, customerauthcontroller.Validate)

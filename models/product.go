@@ -7,7 +7,7 @@ type Product struct {
 	Name           string       `gorm:"type:varchar(255)" json:"name"`
 	Price          float64      `gorm:"type:float;" json:"price"`
 	Description    string       `gorm:"type:varchar(255)" json:"description"`
-	Photo          *string      `gorm:"type:varchar(255)" json:"photo"`
+	Photo          string      `gorm:"type:varchar(255)" json:"photo"`
 	Stock          float64      `gorm:"type:float;" json:"stock"`
 	DailyQuota     float64      `gorm:"type:float;" json:"daily_quota"`
 	RewardPoin     int          `gorm:"type:int" json:"reward_poin"`
