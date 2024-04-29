@@ -2,8 +2,10 @@ package main
 
 import (
 	adminauthcontroller "backend-atmakitchen/controllers/admincontroller"
+	"backend-atmakitchen/controllers/bankcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
+	"backend-atmakitchen/controllers/hamperscontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	"backend-atmakitchen/controllers/productcontroller"
@@ -53,6 +55,8 @@ func main() {
 		product.GET("/search", productcontroller.Search)
 		product.DELETE("/:id", productcontroller.Delete)
 		product.PUT("/:id", productcontroller.Update);
+		product.GET("/type", productcontroller.SearchType);
+		product.GET("/type/search", productcontroller.SearchProductByType);
 
 
 	}
@@ -72,7 +76,7 @@ func main() {
 	{
 		role := admin.Group("/role")
 		{
-			role.POST("/", rolecontroller.Create);
+			role.POST("", rolecontroller.Create);
 		}
 
 		admin.POST("/login", adminauthcontroller.Login)
@@ -97,7 +101,7 @@ func main() {
 	// product type
 	product_type := r.Group("/api/product_type")
 	{			
-		product_type.POST("/", producttypecontroller.Create);
+		product_type.POST("", producttypecontroller.Create);
 		product_type.GET("/", producttypecontroller.Index)
 		product_type.GET("/:id", producttypecontroller.Show)
 	}
@@ -105,8 +109,27 @@ func main() {
 	// consignation
 	consignation := r.Group("/api/consignation")
 	{			
-		consignation.POST("/", consignationcontroller.Create);
+		consignation.POST("", consignationcontroller.Create);
+		consignation.GET("", consignationcontroller.Index);
+		consignation.GET("/search", consignationcontroller.Search)
+		consignation.DELETE("/:id", consignationcontroller.Delete)
+		consignation.PUT("/:id", consignationcontroller.Update);
+
 	}
+
+	bank := r.Group("/api/bank")
+	{			
+		bank.POST("", bankcontroller.Create);
+		bank.GET("", bankcontroller.Index);
+		
+	}
+
+	hampers := r.Group("/api/hampers")
+	{			
+		hampers.POST("", hamperscontroller.Create);
+		
+	}
+	
 
 	
 

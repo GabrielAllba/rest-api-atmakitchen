@@ -327,3 +327,67 @@ func Update(c *gin.Context) {
     // Respond with the updated product
     c.JSON(http.StatusOK, gin.H{"product": existingProduct})
 }
+
+func SearchType(c *gin.Context) {
+    var products []models.Product
+    
+    query := c.Query("query")
+    
+    // Fetch products with the specified product type name
+    if err := models.DB.Preload("ProductType", "name = ?", query).Where("product_type_id IN (SELECT id FROM product_types WHERE name = ?)", query).Find(&products).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch products"})
+        return
+    }
+    
+    // Preload the ProductType association for each product
+    for i := range products {
+        if err := models.DB.Model(&products[i]).Association("ProductType").Find(&products[i].ProductType); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload ProductType for product"})
+            return
+        }
+    }
+
+    // Return the products with preloaded ProductType association
+    c.JSON(http.StatusOK, gin.H{"product": products})
+}
+
+func SearchProductByType(c *gin.Context) {
+    searchQuery := c.Query("search_query")
+    query := c.Query("query")
+    var products []models.Product
+
+    searchQuery = strings.ToLower(searchQuery)
+
+    
+    result := models.DB.Where("LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR price LIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%", "%"+searchQuery+"%")
+
+    
+    if query != "" {
+        
+        var productType models.ProductType
+        if err := models.DB.Where("name = ?", query).First(&productType).Error; err != nil {
+            c.JSON(http.StatusNotFound, gin.H{"message": "Product type not found"})
+            return
+        }
+
+        
+        result = result.Where("product_type_id = ?", productType.Id)
+    }
+
+    
+    result = result.Preload("ProductType")
+
+    
+    if err := result.Find(&products).Error; err != nil {
+        switch err {
+        case gorm.ErrRecordNotFound:
+            c.JSON(http.StatusNotFound, gin.H{"message": "No products found"})
+            return
+        default:
+            c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+            return
+        }
+    }
+
+    c.JSON(http.StatusOK, gin.H{"products": products})
+}
