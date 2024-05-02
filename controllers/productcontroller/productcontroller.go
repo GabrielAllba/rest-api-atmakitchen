@@ -26,7 +26,6 @@ func Create(c *gin.Context) {
     productDescription := c.PostForm("description")
     productStockStr := c.PostForm("stock")
     productDailyQuotaStr := c.PostForm("daily_quota")
-    productRewardPoinStr := c.PostForm("reward_poin")
     productStatus := c.PostForm("status")
     productTypeIDStr := c.PostForm("product_type_id")
     consignationIDStr := c.PostForm("consignation_id")
@@ -47,11 +46,7 @@ func Create(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid daily quota value"})
         return
     }
-    productRewardPoin, err := strconv.Atoi(productRewardPoinStr)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reward poin value"})
-        return
-    }
+    
     productTypeID, err := strconv.Atoi(productTypeIDStr)
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product type ID"})
@@ -103,7 +98,6 @@ func Create(c *gin.Context) {
         Photo:          fixFullFilePath,
         Stock:          productStock,
         DailyQuota:     productDailyQuota,
-        RewardPoin:     productRewardPoin,
         Status:         productStatus,
         ProductTypeId:  productTypeID,
         ConsignationId: consignationID, 
@@ -240,7 +234,6 @@ func Update(c *gin.Context) {
     productDescription := c.PostForm("description")
     productStockStr := c.PostForm("stock")
     productDailyQuotaStr := c.PostForm("daily_quota")
-    productRewardPoinStr := c.PostForm("reward_poin")
     productStatus := c.PostForm("status")
     productTypeIDStr := c.PostForm("product_type_id")
     consignationIDStr := c.PostForm("consignation_id")
@@ -261,11 +254,7 @@ func Update(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid daily quota value"})
         return
     }
-    productRewardPoin, err := strconv.Atoi(productRewardPoinStr)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reward poin value"})
-        return
-    }
+    
     productTypeID, err := strconv.Atoi(productTypeIDStr)
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product type ID"})
@@ -312,7 +301,6 @@ func Update(c *gin.Context) {
     existingProduct.Description = productDescription
     existingProduct.Stock = productStock
     existingProduct.DailyQuota = productDailyQuota
-    existingProduct.RewardPoin = productRewardPoin
     existingProduct.Status = productStatus
     existingProduct.ProductTypeId = productTypeID
     existingProduct.ConsignationId = consignationID

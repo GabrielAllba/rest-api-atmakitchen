@@ -10,7 +10,6 @@ type Product struct {
 	Photo          string      `gorm:"type:varchar(255)" json:"photo"`
 	Stock          float64      `gorm:"type:float;" json:"stock"`
 	DailyQuota     float64      `gorm:"type:float;" json:"daily_quota"`
-	RewardPoin     int          `gorm:"type:int" json:"reward_poin"`
 	Status         string       `gorm:"type:varchar(255)" json:"status"`
 	ProductTypeId  int          `gorm:"index" json:"product_type_id"`
 	ProductType    ProductType  `gorm:"foreignKey:ProductTypeId" json:"product_type"`

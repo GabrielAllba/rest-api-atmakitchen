@@ -126,8 +126,16 @@ func main() {
 
 	hampers := r.Group("/api/hampers")
 	{			
+		hampers.GET("", hamperscontroller.Index);
+		hampers.GET("/:id", hamperscontroller.Show);
+		hampers.PUT("/:id", hamperscontroller.Update);
+		hampers.GET("/latest_id", hamperscontroller.GetLatestHampersID);
 		hampers.POST("", hamperscontroller.Create);
-		
+		hampers.POST("/detail/:id", hamperscontroller.CreateDetail)	
+		hampers.GET("/search", hamperscontroller.Search)
+		hampers.DELETE("/:id", hamperscontroller.Delete)
+		hampers.DELETE("/detail/:id", hamperscontroller.DeleteDetailHampers)
+
 	}
 	
 
