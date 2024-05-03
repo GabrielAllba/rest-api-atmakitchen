@@ -10,6 +10,7 @@ import (
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
+	"backend-atmakitchen/controllers/resepcontroller"
 	"backend-atmakitchen/controllers/rolecontroller"
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
@@ -57,8 +58,6 @@ func main() {
 		product.PUT("/:id", productcontroller.Update);
 		product.GET("/type", productcontroller.SearchType);
 		product.GET("/type/search", productcontroller.SearchProductByType);
-
-
 	}
 
 
@@ -138,6 +137,18 @@ func main() {
 
 	}
 	
+	//resep
+	resep := r.Group("/api/resep")
+	{			
+		resep.POST("", resepcontroller.Create);
+		resep.GET("", resepcontroller.Index)
+		resep.GET("/:id", resepcontroller.Show)
+		resep.GET("/search", resepcontroller.Search)
+		resep.DELETE("/:id", resepcontroller.Delete)
+		resep.PUT("/:id", resepcontroller.Update);
+		// resep.GET("/type", resepcontroller.SearchType);
+		// resep.GET("/type/search", resepcontroller.SearchProductByType);
+	}
 
 	
 
