@@ -2,6 +2,7 @@ package main
 
 import (
 	adminauthcontroller "backend-atmakitchen/controllers/admincontroller"
+	"backend-atmakitchen/controllers/autologincontroller"
 	"backend-atmakitchen/controllers/bankcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
@@ -46,6 +47,14 @@ func main() {
     // 	c.Next()
 	// })
 
+
+	// login based by role
+	autologin := r.Group("/api/autologin")
+	{			
+		autologin.POST("/login", autologincontroller.Login)
+		autologin.POST("/logout", autologincontroller.Logout)
+		autologin.GET("/token/validate/:tokenString", autologincontroller.Validate)
+	}
 
 	// product
 	product := r.Group("/api/product")
