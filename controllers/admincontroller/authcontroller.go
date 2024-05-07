@@ -2,6 +2,7 @@ package adminauthcontroller
 
 import (
 	"backend-atmakitchen/models"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -60,8 +61,8 @@ func Login(c *gin.Context){
 		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+	// Sign and get the complete encoded token as a string using the SECRET_ADMIN
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_ADMIN")))
 
 	if err != nil{
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -82,10 +83,34 @@ func Logout(c *gin.Context) {
 		"message": "Logout successful",
 	})
 }
+    
+func Validate(c *gin.Context) {
+    tokenString := c.Param("tokenString")
+    log.Printf("Received token string: %s", tokenString)
 
-func Validate( c *gin.Context){
-	user, _ := c.Get("user")
-	c.JSON(http.StatusOK, gin.H{
-		"message" : user,
-	})
+    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, jwt.ErrSignatureInvalid
+        }
+        return []byte(os.Getenv("SECRET_ADMIN")), nil
+    })
+
+    if err != nil {
+        log.Printf("Error parsing token: %v", err)
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
+
+    if !token.Valid {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+        return
+    }
+
+    claims, ok := token.Claims.(jwt.MapClaims)
+    if !ok {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract claims from token"})
+        return
+    }
+
+    c.JSON(http.StatusOK, claims)
 }

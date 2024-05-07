@@ -67,7 +67,8 @@ func main() {
 		user.POST("/signup", customerauthcontroller.Signup)
 		user.POST("/login", customerauthcontroller.Login)
 		user.POST("/logout", customerauthcontroller.Logout)
-		
+		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
+
 	}
 
 	// admin
@@ -80,6 +81,7 @@ func main() {
 
 		admin.POST("/login", adminauthcontroller.Login)
 		admin.POST("/logout", adminauthcontroller.Logout)
+		admin.GET("/token/validate/:tokenString", adminauthcontroller.Validate)
 	}
 
 	// mo
@@ -87,6 +89,7 @@ func main() {
 	{			
 		mo.POST("/login", moauthcontrollerauthcontroller.Login)
 		mo.POST("/logout", moauthcontrollerauthcontroller.Logout)	
+		mo.GET("/token/validate/:tokenString", moauthcontrollerauthcontroller.Validate)
 	}
 
 
@@ -95,6 +98,7 @@ func main() {
 	{			
 		owner.POST("/login", ownerauthcontroller.Login)
 		owner.POST("/logout", ownerauthcontroller.Logout)	
+		owner.GET("/token/validate/:tokenString", ownerauthcontroller.Validate)
 	}
 
 	// product type

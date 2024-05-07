@@ -3,6 +3,7 @@ package customerauthcontroller
 import (
 	"backend-atmakitchen/models"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -173,9 +174,33 @@ func Logout(c *gin.Context) {
 	})
 }
 
-func Validate( c *gin.Context){
-	user, _ := c.Get("user")
-	c.JSON(http.StatusOK, gin.H{
-		"message" : user,
-	})
+func Validate(c *gin.Context) {
+    tokenString := c.Param("tokenString")
+    log.Printf("Received token string: %s", tokenString)
+
+    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, jwt.ErrSignatureInvalid
+        }
+        return []byte(os.Getenv("SECRET")), nil
+    })
+
+    if err != nil {
+        log.Printf("Error parsing token: %v", err)
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        return
+    }
+
+    if !token.Valid {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+        return
+    }
+
+    claims, ok := token.Claims.(jwt.MapClaims)
+    if !ok {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract claims from token"})
+        return
+    }
+
+    c.JSON(http.StatusOK, claims)
 }
