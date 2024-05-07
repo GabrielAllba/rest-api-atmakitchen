@@ -175,6 +175,7 @@ func main() {
 	r.GET("/api/validates", middleware.RequireAuth, customerauthcontroller.Validate)
 
 
-	r.Run()
+	r.Run("127.0.0.1:8000")
+
 
 }
