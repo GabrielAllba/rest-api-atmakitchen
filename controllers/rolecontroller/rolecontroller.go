@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 
@@ -41,5 +42,21 @@ func Create(c *gin.Context) {
 		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{"role": role})
+}
+
+func Show(c *gin.Context) {
+	var role models.Role
+	id := c.Param("id")
+	if err := models.DB.First(&role, id).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Role not found"})
+			return
+		default:
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
 	c.JSON(http.StatusOK, gin.H{"role": role})
 }

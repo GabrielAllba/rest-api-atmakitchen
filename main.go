@@ -86,6 +86,7 @@ func main() {
 		role := admin.Group("/role")
 		{
 			role.POST("", rolecontroller.Create);
+			role.GET("/:id", rolecontroller.Show);
 		}
 
 		admin.POST("/login", adminauthcontroller.Login)
