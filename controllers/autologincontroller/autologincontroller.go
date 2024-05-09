@@ -2,7 +2,6 @@ package autologincontroller
 
 import (
 	"backend-atmakitchen/models"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -77,50 +76,6 @@ func Login(c *gin.Context) {
 	})
 }
 
-func Validate(c *gin.Context) {
-    tokenString := c.Param("tokenString")
-    log.Printf("Received token string: %s", tokenString)
-
-    secrets := map[string][]byte{
-        "Admin":            []byte(os.Getenv("SECRET_ADMIN")),
-        "Customer":         []byte(os.Getenv("SECRET")),
-        "Manajer Operasional": []byte(os.Getenv("SECRET_MO")),
-        "Owner":            []byte(os.Getenv("SECRET_OWNER")),
-    }
-
-    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-            return nil, jwt.ErrSignatureInvalid
-        }
-        if claims, ok := token.Claims.(jwt.MapClaims); ok {
-            if role, ok := claims["role"].(string); ok {
-                if secret, ok := secrets[role]; ok {
-                    return secret, nil
-                }
-            }
-        }
-        return nil, jwt.ErrSignatureInvalid
-    })
-
-    if err != nil {
-        log.Printf("Error parsing token: %v", err)
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-        return
-    }
-
-    if !token.Valid {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-        return
-    }
-
-    claims, ok := token.Claims.(jwt.MapClaims)
-    if !ok {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract claims from token"})
-        return
-    }
-
-    c.JSON(http.StatusOK, claims)
-}
 
 
 func Logout(c *gin.Context) {

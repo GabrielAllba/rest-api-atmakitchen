@@ -53,7 +53,6 @@ func main() {
 	{			
 		autologin.POST("/login", autologincontroller.Login)
 		autologin.POST("/logout", autologincontroller.Logout)
-		autologin.GET("/token/validate/:tokenString", autologincontroller.Validate)
 	}
 
 	// product
