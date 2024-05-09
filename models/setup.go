@@ -13,11 +13,11 @@ func ConnectDatabase() {
 	dsn := os.Getenv("DB")
 	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
-	database.AutoMigrate(&User{}, &Role{}, &ProductType{}, &Consignation{}, &Product{}, &Bank{}, &Hampers{}, &DetailHampers{}, &Resep{})
+	database.AutoMigrate(&User{}, &Role{}, &ProductType{}, &Consignation{}, &Product{}, &Bank{}, &Hampers{}, &DetailHampers{}, &Resep{}, &Bahan{})
 
 	DB = database
 }
