@@ -1,7 +1,6 @@
 package emailcontroller
 
 import (
-	//email dgn library go get -u gopkg.in/gomail.v2
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -10,29 +9,32 @@ import (
 
 const CONFIG_SMTP_HOST = "smtp.gmail.com"
 const CONFIG_SMTP_PORT = 587
-const CONFIG_SENDER_NAME = "PT. Atma Kitchen Gokil <arifkurniawanharrisma@gmail.com>"
-const CONFIG_AUTH_EMAIL = "arifkurniawanharrisma@gmail.com"
-const CONFIG_AUTH_PASSWORD = "h4rrism4bro."
+const CONFIG_SENDER_NAME = "gabrielallbasy@gmail.com"
+const CONFIG_AUTH_EMAIL = "gabrielallbasy@gmail.com"
+const CONFIG_AUTH_PASSWORD = "titu yeti vmrw uwcu"
 
 func SendEmail(c *gin.Context) {
-	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", CONFIG_SENDER_NAME)
-	mailer.SetHeader("To", "andreasmargono.23@gmail.com")
-	mailer.SetHeader("Subject", "Selamat Anda Menang!")
-	mailer.SetBody("text/html", "Hello, <b>have a nice day</b>")
-	// mailer.Attach("./sample.png")
 
-	dialer := gomail.NewDialer(
-		CONFIG_SMTP_HOST,
-		CONFIG_SMTP_PORT,
-		CONFIG_AUTH_EMAIL,
-		CONFIG_AUTH_PASSWORD,
-	)
+    emailReceiver := c.PostForm("email_receiver")
 
-	err := dialer.DialAndSend(mailer)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+    mailer := gomail.NewMessage()
+    mailer.SetHeader("From", CONFIG_SENDER_NAME)
+    mailer.SetHeader("To", emailReceiver)
+    mailer.SetHeader("Subject", "Selamat Anda Menang!")
+    mailer.SetBody("text/html", "Hello, <b>have a nice day</b>")
 
-	log.Println("Mail sent!")
+    dialer := gomail.NewDialer(
+        CONFIG_SMTP_HOST,
+        CONFIG_SMTP_PORT,
+        CONFIG_AUTH_EMAIL,
+        CONFIG_AUTH_PASSWORD,
+    )
+
+    if err := dialer.DialAndSend(mailer); err != nil {
+        log.Fatal(err.Error())
+        c.JSON(500, gin.H{"error": "Failed to send email"})
+        return
+    }
+
+    c.JSON(200, gin.H{"message": "Email sent successfully"})
 }
