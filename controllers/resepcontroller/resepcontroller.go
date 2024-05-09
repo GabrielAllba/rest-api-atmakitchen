@@ -144,7 +144,7 @@ func Search(c *gin.Context) {
     }
 
     // Return the search results
-    c.JSON(http.StatusOK, gin.H{"recipes": resep})
+    c.JSON(http.StatusOK, gin.H{"resep": resep})
 }
 func Delete(c *gin.Context) {
     // Extract the product ID from the request parameters
