@@ -7,6 +7,7 @@ import (
 	"backend-atmakitchen/controllers/bankcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
+	"backend-atmakitchen/controllers/emailcontroller"
 	"backend-atmakitchen/controllers/hamperscontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
@@ -53,6 +54,11 @@ func main() {
 	{
 		autologin.POST("/login", autologincontroller.Login)
 		autologin.POST("/logout", autologincontroller.Logout)
+	}
+
+	email := r.Group("/api/email")
+	{
+		email.POST("/send", emailcontroller.SendEmail)
 	}
 
 	// product
