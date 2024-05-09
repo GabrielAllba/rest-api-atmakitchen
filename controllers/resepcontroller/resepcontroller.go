@@ -75,21 +75,13 @@ func Update(c *gin.Context) {
 
     
     resepInstruction := c.PostForm("instruction")
-    productIDStr := c.PostForm("product_id")
-
-    // Convert form field values to appropriate types
     
-    productID, err := strconv.Atoi(productIDStr)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
-        return
-    }
 
 
     // Update the product fields
 	
 	existingResep.Instruction = resepInstruction
-	existingResep.ProductId = productID
+	
 
     // Save the updated product to the database
     if err := models.DB.Save(&existingResep).Error; err != nil {
@@ -97,7 +89,7 @@ func Update(c *gin.Context) {
         return
     }
 
-    models.DB.Preload("Product").Preload("Product.Consignation").Preload("Product.ProductType").First(&existingResep)
+    models.DB.First(&existingResep)
 
     // Respond with the updated product
     c.JSON(http.StatusOK, gin.H{"resep": existingResep})
