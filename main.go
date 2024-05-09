@@ -15,6 +15,7 @@ import (
 	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/resepcontroller"
 	"backend-atmakitchen/controllers/rolecontroller"
+	"backend-atmakitchen/controllers/tokencontroller"
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
 	"backend-atmakitchen/models"
@@ -176,6 +177,13 @@ func main() {
 		bahan.GET("/search", bahancontroller.Search)
 		bahan.DELETE("/:id", bahancontroller.Delete)
 		bahan.PUT("/:id", bahancontroller.Update)
+	}
+
+	token := r.Group("/api/token")
+	{
+		token.POST("/create/:user_id", tokencontroller.CreateToken)
+		token.DELETE("/delete", tokencontroller.DeleteToken)
+		token.GET("/check", tokencontroller.CheckToken)
 	}
 
 	// Define the route
