@@ -122,28 +122,30 @@ func Show(c *gin.Context) {
 }
 
 func Search(c *gin.Context) {
-	query := c.Query("query")
-	var resep []models.Resep
+    query := c.Query("query")
+    var resep []models.Resep
 
-	
-	query = strings.ToLower(query)
-	result := models.DB.Where("LOWER(name) LIKE ? OR LOWER(instruction) LIKE ?", "%"+query+"%", "%"+query+"%")
-	result = result.Preload("Product")
-	
-	if err := result.Find(&resep).Error; err != nil {
-		switch err {
-		case gorm.ErrRecordNotFound:
-			c.JSON(http.StatusNotFound, gin.H{"message": "No resep found"})
-			return
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-			return
-		}
-	}
+    // Convert query to lowercase
+    query = strings.ToLower(query)
 
-	c.JSON(http.StatusOK, gin.H{"resep": resep})
+    result := models.DB.Joins("JOIN products ON reseps.product_id = products.id").
+        Where("LOWER(reseps.instruction) LIKE ? OR LOWER(products.name) LIKE ?", "%"+query+"%", "%"+query+"%").Preload("Product")
+
+    // Execute the query
+    if err := result.Find(&resep).Error; err != nil {
+        switch err {
+        case gorm.ErrRecordNotFound:
+            c.JSON(http.StatusNotFound, gin.H{"message": "No recipes found"})
+            return
+        default:
+            c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+            return
+        }
+    }
+
+    // Return the search results
+    c.JSON(http.StatusOK, gin.H{"recipes": resep})
 }
-
 func Delete(c *gin.Context) {
     // Extract the product ID from the request parameters
     id := c.Param("id")
