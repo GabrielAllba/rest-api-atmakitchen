@@ -120,8 +120,6 @@ func Delete(c *gin.Context) {
         }
     }
 
-
-
     // Delete the product from the database
     if err := models.DB.Delete(&role).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete role"})

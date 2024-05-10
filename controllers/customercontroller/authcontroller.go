@@ -205,50 +205,50 @@ func Validate(c *gin.Context) {
     c.JSON(http.StatusOK, claims)
 }
 
-func GetUser(c *gin.Context) {
-    // Get user ID from JWT token in the request header
-    userID, exists := c.Get("id")
-    if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
-        return
-    }
+// func GetUser(c *gin.Context) {
+//     // Get user ID from JWT token in the request header
+//     userID, exists := c.Get("id")
+//     if !exists {
+//         c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+//         return
+//     }
 
-    // Convert user ID to integer
-    userIDInt, ok := userID.(int)
-    if !ok {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID format"})
-        return
-    }
+//     // Convert user ID to integer
+//     userIDInt, ok := userID.(int)
+//     if !ok {
+//         c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID format"})
+//         return
+//     }
 
-    // Fetch user details from the database
-    var user models.User
-    if err := models.DB.Preload("Role").First(&user, userIDInt).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user details"})
-        return
-    }
+//     // Fetch user details from the database
+//     var user models.User
+//     if err := models.DB.Preload("Role").First(&user, userIDInt).Error; err != nil {
+//         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user details"})
+//         return
+//     }
 
-    // Return user details
-    c.JSON(http.StatusOK, user)
-}
+//     // Return user details
+//     c.JSON(http.StatusOK, user)
+// }
 
-func GetUsersByRoleID(c *gin.Context) {
-    // Get role ID from the URL parameter
-    roleID, err := strconv.Atoi(c.Param("role_id"))
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
-        return
-    }
+// func GetUsersByRoleID(c *gin.Context) {
+//     // Get role ID from the URL parameter
+//     roleID, err := strconv.Atoi(c.Param("role_id"))
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
+//         return
+//     }
 
-    // Fetch users with the specified role ID from the database
-    var users []models.User
-    if err := models.DB.Where("role_id = ?", roleID).Find(&users).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
-        return
-    }
+//     // Fetch users with the specified role ID from the database
+//     var users []models.User
+//     if err := models.DB.Where("role_id = ?", roleID).Find(&users).Error; err != nil {
+//         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+//         return
+//     }
 
-    // Return the list of users with the specified role ID
-    c.JSON(http.StatusOK, users)
-}
+//     // Return the list of users with the specified role ID
+//     c.JSON(http.StatusOK, users)
+// }
 
 // Function signature
 func UpdatePassword(c *gin.Context) {
@@ -286,4 +286,10 @@ func UpdatePassword(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully", "user": user})
+}
+
+func Index(c *gin.Context) {
+	var user []models.User
+	models.DB.Find(&user)
+	c.JSON(http.StatusOK, gin.H{"user": user})
 }

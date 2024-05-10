@@ -82,8 +82,8 @@ func main() {
 		user.POST("/login", customerauthcontroller.Login)
 		user.POST("/logout", customerauthcontroller.Logout)
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
-		user.GET("/user", customerauthcontroller.GetUser)
-		user.GET("/users/:role_id", customerauthcontroller.GetUsersByRoleID)
+		// user.GET("/user", customerauthcontroller.GetUser)
+		// user.GET("/users/:role_id", customerauthcontroller.GetUsersByRoleID)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
 
 	}
@@ -194,6 +194,13 @@ func main() {
 	}
 
 
+	users := r.Group("/api/users")
+	{
+		users.GET("", customerauthcontroller.Index)
+		// users.PUT("/:id", usercontroller.Update)
+		// users.GET("/:id", usercontroller.Show)
+		// users.DELETE("/:id", usercontroller.Delete)
+	}
 	
 	token := r.Group("/api/token")
 	{
