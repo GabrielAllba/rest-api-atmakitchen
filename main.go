@@ -167,6 +167,8 @@ func main() {
 		resep.GET("/search", resepcontroller.Search)
 		resep.DELETE("/:id", resepcontroller.Delete)
 		resep.PUT("/:id", resepcontroller.Update)
+		resep.GET("/latest_id", resepcontroller.GetLatestResepID)
+		resep.POST("/detail/:resep_id", resepcontroller.CreateDetail)
 		// resep.GET("/type", resepcontroller.SearchType);
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}

@@ -20,6 +20,7 @@ func Create(c *gin.Context) {
     // }
 
     // Extract form fields
+    id := c.PostForm("id")
     resepInstruction := c.PostForm("instruction")
     productIDStr := c.PostForm("product_id")
 
@@ -31,8 +32,15 @@ func Create(c *gin.Context) {
         return
     }
 
+    idFix, err := strconv.Atoi(id)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+        return
+    }
+
     // Create a new Product instance
     resep := models.Resep{
+        Id: idFix,
         Instruction:     resepInstruction,
         ProductId:  productID, 
     }
@@ -180,4 +188,63 @@ func Delete(c *gin.Context) {
 
     // Respond with a success message
     c.JSON(http.StatusOK, gin.H{"message": "Resep deleted successfully"})
+}
+
+func GetLatestResepID(c *gin.Context) {
+    var latesResepId int
+
+    // Query the database to get the latest hampers ID
+    if err := models.DB.Model(&models.Resep{}).Select("id").Order("id DESC").Limit(1).Scan(&latesResepId).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get latest Resep ID"})
+        return
+    }
+
+    // Return the latest hampers ID
+    c.JSON(http.StatusOK, gin.H{"latest_resep_id": latesResepId})
+}
+
+// product resep
+
+func CreateDetail(c *gin.Context){
+    resepId := c.Param("resep_id")
+    fixresepId, err := strconv.ParseInt(resepId, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid resep id value"})
+        return
+    }
+    bahanIdStr := c.PostForm("bahan_id")
+    quantityStr := c.PostForm("quantity")
+    unitStr := c.PostForm("unit")
+
+    fixBahanId, err := strconv.ParseInt(bahanIdStr, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
+        return
+    }
+    fixQuantity, err := strconv.ParseInt(quantityStr, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity value"})
+        return
+    }
+
+    bahanResep := models.BahanResep{
+        ResepId: int(fixresepId),
+        BahanId: int(fixBahanId),
+        Quantity: float64(fixQuantity),
+        Unit: unitStr,
+    }
+
+    // Save the hampers to the database
+    if err := models.DB.Create(&bahanResep).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bahan resep"})
+        return
+    }
+
+    // Preload Hampers, Product, and ProductType
+    if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahanResep).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload associated models"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"bahan_resep": bahanResep})
 }

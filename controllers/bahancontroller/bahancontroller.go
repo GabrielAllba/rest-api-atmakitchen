@@ -3,6 +3,7 @@ package bahancontroller
 import (
 	"backend-atmakitchen/models"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -76,10 +77,27 @@ func Delete(c *gin.Context) {
 }
 
 func Search(c *gin.Context) {
-	var bahan []models.Bahan
-	nama := c.Query("nama")
-	models.DB.Where("nama LIKE ?", "%"+nama+"%").Find(&bahan)
-	c.JSON(http.StatusOK, gin.H{"bahan": bahan})
+	query := c.Query("query")
+	var bahans []models.Bahan
+
+	
+	query = strings.ToLower(query)
+	result := models.DB.Where("LOWER(nama) LIKE ? OR LOWER(merk) LIKE ? OR harga LIKE ? OR stok LIKE ? OR satuan LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	
+
+	
+	if err := result.Find(&bahans).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No bahan found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"bahans": bahans})
 }
 
 func Update(c *gin.Context) {
@@ -101,7 +119,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	if bahan.Nama == "" || bahan.Harga == 0 || bahan.Merk == "" || bahan.Satuan == "" || bahan.Stok == 0 {
+	if bahan.Nama == ""  || bahan.Merk == "" || bahan.Satuan == ""  {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}
