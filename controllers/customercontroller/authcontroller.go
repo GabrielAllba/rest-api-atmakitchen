@@ -204,3 +204,86 @@ func Validate(c *gin.Context) {
 
     c.JSON(http.StatusOK, claims)
 }
+
+func GetUser(c *gin.Context) {
+    // Get user ID from JWT token in the request header
+    userID, exists := c.Get("id")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+        return
+    }
+
+    // Convert user ID to integer
+    userIDInt, ok := userID.(int)
+    if !ok {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID format"})
+        return
+    }
+
+    // Fetch user details from the database
+    var user models.User
+    if err := models.DB.Preload("Role").First(&user, userIDInt).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user details"})
+        return
+    }
+
+    // Return user details
+    c.JSON(http.StatusOK, user)
+}
+
+func GetUsersByRoleID(c *gin.Context) {
+    // Get role ID from the URL parameter
+    roleID, err := strconv.Atoi(c.Param("role_id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
+        return
+    }
+
+    // Fetch users with the specified role ID from the database
+    var users []models.User
+    if err := models.DB.Where("role_id = ?", roleID).Find(&users).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+        return
+    }
+
+    // Return the list of users with the specified role ID
+    c.JSON(http.StatusOK, users)
+}
+
+// Function signature
+func UpdatePassword(c *gin.Context) {
+    var user models.User
+
+    // Get email from the URL parameter
+    email := c.Param("email")
+
+    // Check if the user exists
+    if err := models.DB.Where("email = ?", email).First(&user).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
+
+    // Bind JSON data to user struct
+    if err := c.BindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Hash the password
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+        return
+    }
+
+    // Update the user's password with the hashed one
+    user.Password = string(hashedPassword)
+
+    // Update the user in the database
+    if err := models.DB.Save(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully", "user": user})
+}

@@ -82,6 +82,9 @@ func main() {
 		user.POST("/login", customerauthcontroller.Login)
 		user.POST("/logout", customerauthcontroller.Logout)
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
+		user.GET("/user", customerauthcontroller.GetUser)
+		user.GET("/users/:role_id", customerauthcontroller.GetUsersByRoleID)
+		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
 
 	}
 
@@ -179,6 +182,17 @@ func main() {
 		bahan.PUT("/:id", bahancontroller.Update)
 	}
 
+	roles := r.Group("/api/roles")
+	{
+		roles.POST("", rolecontroller.Create)
+		roles.GET("", rolecontroller.Index)
+		roles.PUT("/:id", rolecontroller.Update)
+		roles.GET("/:id", rolecontroller.Show)
+		roles.DELETE("/:id", rolecontroller.Delete)
+	}
+
+
+	
 	token := r.Group("/api/token")
 	{
 		token.POST("/create/:user_id", tokencontroller.CreateToken)
