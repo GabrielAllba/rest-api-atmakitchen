@@ -3,6 +3,7 @@ package bahancontroller
 import (
 	"backend-atmakitchen/models"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -75,13 +76,6 @@ func Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Bahan deleted"})
 }
 
-func Search(c *gin.Context) {
-	var bahan []models.Bahan
-	nama := c.Query("nama")
-	models.DB.Where("nama LIKE ?", "%"+nama+"%").Find(&bahan)
-	c.JSON(http.StatusOK, gin.H{"bahan": bahan})
-}
-
 func Update(c *gin.Context) {
 	var bahan models.Bahan
 	id := c.Param("id")
@@ -108,4 +102,25 @@ func Update(c *gin.Context) {
 
 	models.DB.Save(&bahan)
 	c.JSON(http.StatusOK, gin.H{"bahan": bahan})
+}
+
+func Search(c *gin.Context) {
+	query := c.Query("query")
+	var bahans []models.Bahan
+
+	query = strings.ToLower(query)
+	result := models.DB.Where("LOWER(nama) LIKE ? OR LOWER(price) LIKE ? OR LOWER(merk) LIKE ?", "%"+query+"%", query+"%", "%"+query+"%")
+
+	if err := result.Find(&bahans).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No bahans found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"bahan": bahans})
 }
