@@ -205,7 +205,8 @@ func main() {
 	token := r.Group("/api/token")
 	{
 		token.POST("/create/:user_id", tokencontroller.CreateToken)
-		token.DELETE("/delete", tokencontroller.DeleteToken)
+		token.GET("", tokencontroller.Index)
+		token.DELETE("/:user_id", tokencontroller.DeleteToken)
 		token.GET("/check", tokencontroller.CheckToken)
 	}
 
