@@ -99,7 +99,6 @@ func Update(c *gin.Context) {
 
     models.DB.First(&existingResep)
 
-    // Respond with the updated product
     c.JSON(http.StatusOK, gin.H{"resep": existingResep})
 }
 
@@ -107,8 +106,9 @@ func Update(c *gin.Context) {
 
 func Index(c *gin.Context) {
 	var resep []models.Resep
-	models.DB.Find(&resep)
+	models.DB.Preload("BahanResep").Preload("BahanResep.Bahan").Preload("BahanResep.Resep.Product").Find(&resep) 
 	c.JSON(http.StatusOK, gin.H{"resep": resep})
+
 }
 
 func Show(c *gin.Context) {
@@ -202,6 +202,26 @@ func GetLatestResepID(c *gin.Context) {
     // Return the latest hampers ID
     c.JSON(http.StatusOK, gin.H{"latest_resep_id": latesResepId})
 }
+
+func GetDetailResep(c *gin.Context){
+    var bahan_resep models.BahanResep
+    resepID := c.Param("resep_id") 
+
+    
+    if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahan_resep, resepID).Error; err != nil {
+        switch err {
+        case gorm.ErrRecordNotFound:
+            c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Recipe not found"}) 
+            return
+        default:
+            c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+            return
+        }
+    }
+    
+    c.JSON(http.StatusOK, gin.H{"bahan_resep": bahan_resep})
+}
+
 
 // product resep
 

@@ -170,6 +170,7 @@ func main() {
 		resep.PUT("/:id", resepcontroller.Update)
 		resep.GET("/latest_id", resepcontroller.GetLatestResepID)
 		resep.POST("/detail/:resep_id", resepcontroller.CreateDetail)
+		resep.GET("/detail/:resep_id", resepcontroller.GetDetailResep)
 		// resep.GET("/type", resepcontroller.SearchType);
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}
