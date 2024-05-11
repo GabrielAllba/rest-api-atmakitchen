@@ -16,6 +16,7 @@ import (
 	"backend-atmakitchen/controllers/resepcontroller"
 	"backend-atmakitchen/controllers/rolecontroller"
 	"backend-atmakitchen/controllers/tokencontroller"
+	"backend-atmakitchen/controllers/usercontroller"
 	"backend-atmakitchen/initializers"
 	"backend-atmakitchen/middleware"
 	"backend-atmakitchen/models"
@@ -197,9 +198,10 @@ func main() {
 	users := r.Group("/api/users")
 	{
 		users.GET("", customerauthcontroller.Index)
+		users.GET("/cari", usercontroller.Search)
+		users.DELETE("/:id", usercontroller.Delete)
 		// users.PUT("/:id", usercontroller.Update)
 		// users.GET("/:id", usercontroller.Show)
-		// users.DELETE("/:id", usercontroller.Delete)
 	}
 	
 	token := r.Group("/api/token")

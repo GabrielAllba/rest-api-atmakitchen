@@ -1,4 +1,4 @@
-package customerauthcontroller
+package usercontroller
 
 import (
 	"backend-atmakitchen/models"
@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func Signup(c *gin.Context){
@@ -292,4 +294,45 @@ func Index(c *gin.Context) {
 	var user []models.User
 	models.DB.Find(&user)
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func Search(c *gin.Context) {
+	query := c.Query("query")
+	var user []models.User
+
+	
+	query = strings.ToLower(query)
+	result := models.DB.Where("LOWER(name) LIKE ? OR LOWER(email) LIKE ? OR LOWER(username) LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	
+
+	
+	if err := result.Find(&user).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No user found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func Delete(c *gin.Context) {
+	var user models.User
+	id := c.Param("id")
+	if err := models.DB.First(&user, id).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+			return
+		default:
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+	models.DB.Delete(&user)
+	c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }
