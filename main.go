@@ -137,7 +137,6 @@ func main() {
 		consignation.GET("/search", consignationcontroller.Search)
 		consignation.DELETE("/:id", consignationcontroller.Delete)
 		consignation.PUT("/:id", consignationcontroller.Update)
-
 	}
 
 	bank := r.Group("/api/bank")
@@ -199,7 +198,6 @@ func main() {
 		roles.DELETE("/:id", rolecontroller.Delete)
 	}
 
-
 	users := r.Group("/api/users")
 	{
 		users.GET("", customerauthcontroller.Index)
@@ -208,7 +206,7 @@ func main() {
 		// users.PUT("/:id", usercontroller.Update)
 		// users.GET("/:id", usercontroller.Show)
 	}
-	
+
 	token := r.Group("/api/token")
 	{
 		token.POST("/create/:user_id", tokencontroller.CreateToken)

@@ -80,12 +80,9 @@ func Search(c *gin.Context) {
 	query := c.Query("query")
 	var bahans []models.Bahan
 
-	
 	query = strings.ToLower(query)
 	result := models.DB.Where("LOWER(nama) LIKE ? OR LOWER(merk) LIKE ? OR harga LIKE ? OR stok LIKE ? OR satuan LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%")
-	
 
-	
 	if err := result.Find(&bahans).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -119,7 +116,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	if bahan.Nama == ""  || bahan.Satuan == ""  {
+	if bahan.Nama == "" || bahan.Merk == "" || bahan.Satuan == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}
