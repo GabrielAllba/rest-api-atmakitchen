@@ -11,6 +11,8 @@ import (
 	"backend-atmakitchen/controllers/hamperscontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
+	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
+
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/resepcontroller"
@@ -156,6 +158,7 @@ func main() {
 		hampers.GET("/search", hamperscontroller.Search)
 		hampers.DELETE("/:id", hamperscontroller.Delete)
 		hampers.DELETE("/detail/:id", hamperscontroller.DeleteDetailHampers)
+		hampers.PUT("/detail/:id", hamperscontroller.UpdateDetail)
 
 	}
 
@@ -175,6 +178,7 @@ func main() {
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}
 
+	
 	//bahan
 	bahan := r.Group("/api/bahan")
 	{
@@ -212,6 +216,19 @@ func main() {
 		token.DELETE("/:user_id", tokencontroller.DeleteToken)
 		token.GET("/check", tokencontroller.CheckToken)
 	}
+
+	//pembelian bahan baku
+	pembelian_bahan_baku := r.Group("/api/pembelian_bahan_baku")
+	{
+		pembelian_bahan_baku.POST("", pembelianBahanBakubakucontroller.Create)
+		pembelian_bahan_baku.GET("", pembelianBahanBakubakucontroller.Index)
+		pembelian_bahan_baku.GET("/search", pembelianBahanBakubakucontroller.GetByDateRange)
+		pembelian_bahan_baku.DELETE("/:id", pembelianBahanBakubakucontroller.Delete)
+		pembelian_bahan_baku.GET("/:id", pembelianBahanBakubakucontroller.Show)
+		pembelian_bahan_baku.PUT("/:id", pembelianBahanBakubakucontroller.Update)
+		
+	}
+
 
 	// Define the route
 	r.GET("/api/images/:filename", getImage)

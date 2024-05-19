@@ -17,7 +17,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	if bahan.Nama == "" || bahan.Merk == "" || bahan.Satuan == "" || bahan.Stok == 0 {
+	if bahan.Nama == "" || bahan.Satuan == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}
@@ -119,7 +119,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	if bahan.Nama == ""  || bahan.Merk == "" || bahan.Satuan == ""  {
+	if bahan.Nama == ""  || bahan.Satuan == ""  {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}

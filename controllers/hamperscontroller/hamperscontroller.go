@@ -323,3 +323,41 @@ func DeleteDetailHampers(c *gin.Context){
     
     c.JSON(http.StatusOK, gin.H{"message": "Detail hampers deleted successfully"})
 }
+
+func UpdateDetail(c *gin.Context) {
+    hampersId := c.Param("id")
+    productIdStr := c.PostForm("product_id")
+    quantityStr := c.PostForm("jumlah")
+
+    fixHampersId, err := strconv.ParseInt(hampersId, 10, 32)
+    if(err != nil){
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed"})
+    }
+    fixProductId, err := strconv.ParseInt(productIdStr, 10, 32)
+    fixQuantity, err := strconv.ParseInt(quantityStr, 10, 32)
+    
+
+    // Find the existing detail hampers entry
+    var detailHampers models.DetailHampers
+     if err := models.DB.Where("hampers_id = ? AND product_id = ?", int(fixHampersId), int(fixProductId)).First(&detailHampers).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query detail hampers"})
+        return
+    }
+
+    // Update the quantity
+    detailHampers.Jumlah = int(fixQuantity)
+
+    // Save the updated detail hampers to the database
+    if err := models.DB.Save(&detailHampers).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update detail hampers"})
+        return
+    }
+
+    // Preload Hampers, Product, and ProductType
+    if err := models.DB.Preload("Hampers").Preload("Product").Preload("Product.ProductType").First(&detailHampers).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload associated models"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"detail_hampers": detailHampers})
+}
