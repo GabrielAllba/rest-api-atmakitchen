@@ -19,7 +19,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	if pengeluaranLain.Harga == 0 || pengeluaranLain.Deskripsi == "" || pengeluaranLain.Metode == "" {
+	if pengeluaranLain.Harga == 0 || pengeluaranLain.Deskripsi == "" || pengeluaranLain.Metode == "" || pengeluaranLain.TanggalPembelian.IsZero() {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
 		return
 	}
@@ -78,7 +78,7 @@ func Search(c *gin.Context) {
 	var pengeluaranLain []models.PengeluaranLain
 
 	query = strings.ToLower(query)
-	result := models.DB.Where("LOWER(deskripsi) LIKE ? OR LOWER(metode) LIKE ? OR harga LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	result := models.DB.Where("LOWER(deskripsi) LIKE ? OR LOWER(metode) LIKE ? OR harga LIKE ? OR tanggal_pembelian LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
 
 	if err := result.Find(&pengeluaranLain).Error; err != nil {
 		switch err {
