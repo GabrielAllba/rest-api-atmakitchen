@@ -19,8 +19,8 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	if pengeluaranLain.Harga == 0 || pengeluaranLain.Deskripsi == "" || pengeluaranLain.Metode == "" || pengeluaranLain.TanggalPembelian.IsZero() {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Pastikan semua input terisi"})
+	if pengeluaranLain.Harga == 0 || pengeluaranLain.Deskripsi == "" || pengeluaranLain.Metode == "" || pengeluaranLain.TanggalPengeluaran == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": pengeluaranLain})
 		return
 	}
 
@@ -29,13 +29,13 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"pengeluaran lain": pengeluaranLain})
+	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
 
 func Index(c *gin.Context) {
 	var pengeluaranLain []models.PengeluaranLain
 	models.DB.Find(&pengeluaranLain)
-	c.JSON(http.StatusOK, gin.H{"pengeluaran lain": pengeluaranLain})
+	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
 
 func Show(c *gin.Context) {
@@ -45,14 +45,14 @@ func Show(c *gin.Context) {
 	if err := models.DB.First(&pengeluaranLain, id).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Pengeluaran Lain not found"})
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Pengeluaran_Lain not found"})
 			return
 		default:
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"pengeluarna lain": pengeluaranLain})
+	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
 
 func Delete(c *gin.Context) {
@@ -78,7 +78,7 @@ func Search(c *gin.Context) {
 	var pengeluaranLain []models.PengeluaranLain
 
 	query = strings.ToLower(query)
-	result := models.DB.Where("LOWER(deskripsi) LIKE ? OR LOWER(metode) LIKE ? OR harga LIKE ? OR tanggal_pembelian LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	result := models.DB.Where("LOWER(deskripsi) LIKE ? OR LOWER(metode) LIKE ? OR harga LIKE ? OR tanggal_pengeluaran LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%")
 
 	if err := result.Find(&pengeluaranLain).Error; err != nil {
 		switch err {
@@ -90,7 +90,7 @@ func Search(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"Pengeluaran Lain": pengeluaranLain})
+	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
 
 func Update(c *gin.Context) {
@@ -118,5 +118,5 @@ func Update(c *gin.Context) {
 	}
 
 	models.DB.Save(&pengeluaranLain)
-	c.JSON(http.StatusOK, gin.H{"pengeluaran lain": pengeluaranLain})
+	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
