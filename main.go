@@ -204,6 +204,8 @@ func main() {
 		users.GET("", customerauthcontroller.Index)
 		users.GET("/cari", usercontroller.Search)
 		users.DELETE("/:id", usercontroller.Delete)
+		users.GET("/customer", usercontroller.SearchType)
+		users.GET("/customer/search", usercontroller.SearhUserByType)
 		// users.PUT("/:id", usercontroller.Update)
 		// users.GET("/:id", usercontroller.Show)
 	}
