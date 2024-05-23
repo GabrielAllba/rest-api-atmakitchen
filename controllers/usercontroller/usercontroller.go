@@ -224,24 +224,27 @@ func Validate(c *gin.Context) {
 // }
 
 func SearchType(c *gin.Context) {
-	var users []models.User
-
-	query := c.Query("query")
-
-	if err := models.DB.Preload("Role", "name = ?", query).Where("role_id IN (SELECT id FROM roles WHERE name = ?)", query).Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch data"})
+	queryStr := c.Query("query")
+	query, err := strconv.Atoi(queryStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query format"})
 		return
 	}
+	var users []models.User
 
-	// Preload the association for each item
-	for i := range users {
-		if err := models.DB.Model(&users[i]).Association("Role").Find(&users[i].Role); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload"})
+	result := models.DB.Where("role_id = ?", query)
+
+	if err := result.Find(&users).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No customers found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 			return
 		}
 	}
 
-	// Return the products with preloaded ProductType association
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
