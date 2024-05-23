@@ -7,12 +7,14 @@ import (
 	"backend-atmakitchen/controllers/bankcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
-	"backend-atmakitchen/controllers/emailcontroller"
+
+	// "backend-atmakitchen/controllers/emailcontroller"
 	"backend-atmakitchen/controllers/hamperscontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
 
+	"backend-atmakitchen/controllers/pengeluaranlaincontroller"
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/resepcontroller"
@@ -60,10 +62,10 @@ func main() {
 		autologin.POST("/logout", autologincontroller.Logout)
 	}
 
-	email := r.Group("/api/email")
-	{
-		email.POST("/send", emailcontroller.SendEmail)
-	}
+	// email := r.Group("/api/email")
+	// {
+	// 	email.POST("/send", emailcontroller.SendEmail)
+	// }
 
 	// product
 	product := r.Group("/api/product")
@@ -177,7 +179,6 @@ func main() {
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}
 
-	
 	//bahan
 	bahan := r.Group("/api/bahan")
 	{
@@ -224,9 +225,18 @@ func main() {
 		pembelian_bahan_baku.DELETE("/:id", pembelianBahanBakubakucontroller.Delete)
 		pembelian_bahan_baku.GET("/:id", pembelianBahanBakubakucontroller.Show)
 		pembelian_bahan_baku.PUT("/:id", pembelianBahanBakubakucontroller.Update)
-		
 	}
 
+	pengeluaran_lain := r.Group("/api/pengeluaran_lain")
+	{
+		//create, index, show, delete, search, update
+		pengeluaran_lain.POST("", pengeluaranlaincontroller.Create)
+		pengeluaran_lain.GET("", pengeluaranlaincontroller.Index)
+		pengeluaran_lain.GET("/:id", pengeluaranlaincontroller.Show)
+		pengeluaran_lain.DELETE("/:id", pengeluaranlaincontroller.Delete)
+		pengeluaran_lain.GET("/search", pengeluaranlaincontroller.Search)
+		pengeluaran_lain.PUT("/:id", pengeluaranlaincontroller.Update)
+	}
 
 	// Define the route
 	r.GET("/api/images/:filename", getImage)
