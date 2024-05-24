@@ -50,7 +50,7 @@ func Show(c *gin.Context) {
     id := c.Param("id")
     var transactions models.Transaction
 
-    if err := models.DB.Preload("Product").Preload("Hampers").First(&transactions, id).Error; err != nil {
+    if err := models.DB.Preload("User").First(&transactions, id).Error; err != nil {
         if err == gorm.ErrRecordNotFound {
             c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found"})
         } else {

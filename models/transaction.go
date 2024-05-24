@@ -9,6 +9,7 @@ type Transaction struct {
 	TanggalAmbil      string  `gorm:"type:varchar(255)" json:"tanggal_ambil"`
 	NamaPenerima      string  `gorm:"type:varchar(255)" json:"nama_penerima"`
 	AlamatPenerima    string  `gorm:"type:varchar(255)" json:"alamat_penerima"`
+	NoTelpPenerima    string  `gorm:"type:varchar(255)" json:"no_telp_penerima"`
 	Delivery          string  `gorm:"type:varchar(255)" json:"delivery"`
 	TransactionStatus string  `gorm:"type:varchar(255)" json:"transaction_status"`
 	Distance          float64 `gorm:"type:float;" json:"distance"`

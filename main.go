@@ -10,10 +10,12 @@ import (
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
 	"backend-atmakitchen/controllers/emailcontroller"
 	"backend-atmakitchen/controllers/hamperscontroller"
+	"backend-atmakitchen/controllers/invoicecountercontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
 	"backend-atmakitchen/controllers/transactioncontroller"
+	"backend-atmakitchen/controllers/transactiondetailcontroller"
 
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
@@ -244,7 +246,7 @@ func main() {
 		cart.PUT("/:id", cartcontroller.Update)
 	}
 
-	// cart
+	// transactions
 	transactions := r.Group("/api/transactions")
 	{
 		transactions.POST("", transactioncontroller.Create)
@@ -253,6 +255,22 @@ func main() {
 		transactions.GET("/:id", transactioncontroller.Show)
 		transactions.DELETE("/:id", transactioncontroller.Delete)
 		transactions.PUT("/:id", transactioncontroller.Update)
+	}
+
+	// transaction_detail
+	transaction_details := r.Group("/api/transaction_details")
+	{
+		transaction_details.POST("", transactiondetailcontroller.Create)
+		transaction_details.GET("", transactiondetailcontroller.Index)
+		transaction_details.GET("/invoice/:invoiceNumber", transactiondetailcontroller.GetByInvoiceNumber)
+		transaction_details.GET("/:id", transactiondetailcontroller.Show)
+		transaction_details.DELETE("/:id", transactiondetailcontroller.Delete)
+		transaction_details.PUT("/:id", transactiondetailcontroller.Update)
+	}
+	
+	invoice_number := r.Group("/api/invoice_number")
+	{
+		invoice_number.POST("", invoicecountercontroller.Create)
 	}
 
 
