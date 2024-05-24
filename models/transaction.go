@@ -19,7 +19,6 @@ type Transaction struct {
 	PointIncome       float64 `gorm:"type:float;" json:"point_income"`
 	PaymentDate       string  `gorm:"type:varchar(255);" json:"payment_date"`
 	PaymentProof      string  `gorm:"type:varchar(255)" json:"payment_proof"`
-	OngkosKirim       float64 `gorm:"type:float;" json:"ongkos_kirim"`
 	PoinUser          float64 `gorm:"type:float;" json:"poin_user"`
 	TotalPoinUser     float64 `gorm:"type:float;" json:"total_poin_user"`
 }
