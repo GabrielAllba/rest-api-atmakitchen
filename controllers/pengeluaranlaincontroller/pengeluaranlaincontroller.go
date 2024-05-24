@@ -34,7 +34,7 @@ func Create(c *gin.Context) {
 
 func Index(c *gin.Context) {
 	var pengeluaranLain []models.PengeluaranLain
-	models.DB.Find(&pengeluaranLain)
+	models.DB.Order("tanggal_pengeluaran desc").Find(&pengeluaranLain)
 	c.JSON(http.StatusOK, gin.H{"pengeluaran_lain": pengeluaranLain})
 }
 
