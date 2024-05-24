@@ -13,6 +13,7 @@ import (
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
+	"backend-atmakitchen/controllers/transactioncontroller"
 
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
@@ -241,6 +242,17 @@ func main() {
 		cart.GET("/:id", cartcontroller.Show)
 		cart.DELETE("/:id", cartcontroller.Delete)
 		cart.PUT("/:id", cartcontroller.Update)
+	}
+
+	// cart
+	transactions := r.Group("/api/transactions")
+	{
+		transactions.POST("", transactioncontroller.Create)
+		transactions.GET("", transactioncontroller.Index)
+		transactions.GET("/user/:userId", transactioncontroller.GetByUserID)
+		transactions.GET("/:id", transactioncontroller.Show)
+		transactions.DELETE("/:id", transactioncontroller.Delete)
+		transactions.PUT("/:id", transactioncontroller.Update)
 	}
 
 
