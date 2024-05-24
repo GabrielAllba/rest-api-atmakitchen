@@ -82,7 +82,7 @@ func Search(c *gin.Context) {
 
 	
 	query = strings.ToLower(query)
-	result := models.DB.Where("LOWER(nama) LIKE ? OR LOWER(merk) LIKE ? OR harga LIKE ? OR stok LIKE ? OR satuan LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	result := models.DB.Where("LOWER(nama) LIKE ?  OR stok LIKE ? OR satuan LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
 	
 
 	

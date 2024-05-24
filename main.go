@@ -5,6 +5,7 @@ import (
 	"backend-atmakitchen/controllers/autologincontroller"
 	"backend-atmakitchen/controllers/bahancontroller"
 	"backend-atmakitchen/controllers/bankcontroller"
+	"backend-atmakitchen/controllers/cartcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
 	customerauthcontroller "backend-atmakitchen/controllers/customercontroller"
 	"backend-atmakitchen/controllers/emailcontroller"
@@ -76,7 +77,9 @@ func main() {
 		product.PUT("/:id", productcontroller.Update)
 		product.GET("/type", productcontroller.SearchType)
 		product.GET("/type/search", productcontroller.SearchProductByType)
+		product.GET("/tag/search", productcontroller.SearchProductByTag)
 	}
+
 
 	// customer
 	user := r.Group("/api/customer")
@@ -227,6 +230,17 @@ func main() {
 		pembelian_bahan_baku.GET("/:id", pembelianBahanBakubakucontroller.Show)
 		pembelian_bahan_baku.PUT("/:id", pembelianBahanBakubakucontroller.Update)
 		
+	}
+
+	// cart
+	cart := r.Group("/api/cart")
+	{
+		cart.POST("", cartcontroller.Create)
+		cart.GET("", cartcontroller.Index)
+		cart.GET("/user/:userId", cartcontroller.GetByUserID)
+		cart.GET("/:id", cartcontroller.Show)
+		cart.DELETE("/:id", cartcontroller.Delete)
+		cart.PUT("/:id", cartcontroller.Update)
 	}
 
 

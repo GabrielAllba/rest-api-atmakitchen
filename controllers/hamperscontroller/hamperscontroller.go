@@ -285,24 +285,35 @@ func Show(c *gin.Context) {
     id := c.Param("id")
 
     if err := models.DB.First(&hampers, id).Error; err != nil {
-        switch err {
-        case gorm.ErrRecordNotFound:
+        if err == gorm.ErrRecordNotFound {
             c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Hampers not found"})
             return
-        default:
+        } else {
             c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
             return
         }
     }
 
     var detailHampers []models.DetailHampers
-    if err := models.DB.Where("hampers_id = ?", hampers.Id).Preload("Product").Preload("Product.ProductType").Preload("Product.Consignation").Preload("Hampers").Find(&detailHampers).Error; err != nil {
+    if err := models.DB.Where("hampers_id = ?", hampers.Id).Preload("Product").Preload("Product.ProductType").Preload("Product.Consignation").Find(&detailHampers).Error; err != nil {
         c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
         return
     }
 
+    response := gin.H{
+        "hampers": gin.H{
+            "id":           hampers.Id,
+            "hampers_name":         hampers.HampersName,
+            "deskripsi":  hampers.Deskripsi,
+            "daily_quota":   hampers.DailyQuota,
+            "photo":   hampers.Photo,
+            "price":   hampers.Price,
+            "stock":   hampers.Stock,
+            "produk_hampers": detailHampers,
+        },
+    }
 
-    c.JSON(http.StatusOK, gin.H{"hampers": hampers, "detail_hampers": detailHampers})
+    c.JSON(http.StatusOK, response)
 }
 
 

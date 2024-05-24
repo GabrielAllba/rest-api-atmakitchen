@@ -29,6 +29,7 @@ func Create(c *gin.Context) {
     productStatus := c.PostForm("status")
     productTypeIDStr := c.PostForm("product_type_id")
     consignationIDStr := c.PostForm("consignation_id")
+    tag := c.PostForm("tag")
 
     // Convert form field values to appropriate types
     productPrice, err := strconv.ParseFloat(productPriceStr, 64)
@@ -101,6 +102,7 @@ func Create(c *gin.Context) {
         Status:         productStatus,
         ProductTypeId:  productTypeID,
         ConsignationId: consignationID, 
+        Tag: tag,
     }
 
     // Save the product to the database
@@ -230,6 +232,7 @@ func Update(c *gin.Context) {
 
     // Extract form fields
     productName := c.PostForm("name")
+    tag := c.PostForm("tag")
     productPriceStr := c.PostForm("price")
     productDescription := c.PostForm("description")
     productStockStr := c.PostForm("stock")
@@ -305,6 +308,7 @@ func Update(c *gin.Context) {
     existingProduct.ProductTypeId = productTypeID
     existingProduct.ConsignationId = consignationID
     existingProduct.Photo = filePathFix // Update the photo path
+    existingProduct.Tag = tag // Update the photo path
 
     // Save the updated product to the database
     if err := models.DB.Save(&existingProduct).Error; err != nil {
@@ -336,6 +340,22 @@ func SearchType(c *gin.Context) {
     }
 
     // Return the products with preloaded ProductType association
+    c.JSON(http.StatusOK, gin.H{"product": products})
+}
+
+func SearchProductByTag(c *gin.Context) {
+    var products []models.Product
+    
+    query := c.Query("query")
+    
+    
+    query = strings.ToLower(query)
+    
+    if err := models.DB.Where("LOWER(tag) LIKE ?", "%"+query+"%").Preload("ProductType").Find(&products).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch products"})
+        return
+    }
+
     c.JSON(http.StatusOK, gin.H{"product": products})
 }
 

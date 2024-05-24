@@ -129,6 +129,25 @@ func Delete(c *gin.Context) {
 		return
 	}
 
+	
+	var bahan models.Bahan
+	if err := models.DB.First(&bahan, pembelianBahanBaku.BahanId).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load related Bahan"})
+		return
+	}
+
+	
+	bahan.Stok -= pembelianBahanBaku.Jumlah
+	if bahan.Stok < 0 {
+		bahan.Stok = 0 
+		
+	}
+	if err := models.DB.Save(&bahan).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update Bahan stock"})
+		return
+	}
+
+	
 	if err := models.DB.Delete(&pembelianBahanBaku).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete record"})
 		return
@@ -136,6 +155,7 @@ func Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Record deleted successfully"})
 }
+
 
 func Update(c *gin.Context) {
 	var pembelianBahanBaku models.PembelianBahanBaku

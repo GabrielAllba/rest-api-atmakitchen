@@ -11,6 +11,7 @@ type Product struct {
 	Stock          float64      `gorm:"type:float;" json:"stock"`
 	DailyQuota     float64      `gorm:"type:float;" json:"daily_quota"`
 	Status         string       `gorm:"type:varchar(255)" json:"status"`
+	Tag            string      `gorm:"type:varchar(255)" json:"tag"`
 	ProductTypeId  int          `gorm:"index" json:"product_type_id"`
 	ProductType    ProductType  `gorm:"foreignKey:ProductTypeId" json:"product_type"`
 	ConsignationId *int         `gorm:"index" json:"consignation_id"`
