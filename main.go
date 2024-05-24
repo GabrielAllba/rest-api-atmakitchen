@@ -267,6 +267,8 @@ func main() {
 		transaction_details.GET("/:id", transactiondetailcontroller.Show)
 		transaction_details.DELETE("/:id", transactiondetailcontroller.Delete)
 		transaction_details.PUT("/:id", transactiondetailcontroller.Update)
+		transaction_details.GET("/invoice/photos/:invoiceNumber", transactiondetailcontroller.GetPhotosByInvoiceNumber)
+		transaction_details.GET("/invoice/photos/user/:userId", transactiondetailcontroller.GetPhotosByUserID)
 	}
 	
 	invoice_number := r.Group("/api/invoice_number")

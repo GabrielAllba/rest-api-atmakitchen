@@ -128,17 +128,85 @@ func GetByUserID(c *gin.Context) {
     }
 
     // Retrieve transaction details for each transaction
-    var transactionDetails []models.TransactionDetail
+    var allTransactionDetails []models.TransactionDetail
     for _, transaction := range transactions {
-        if err := models.DB.Where("invoice_number = ?", transaction.InvoiceNumber).Find(&transactionDetails).Error; err != nil {
+        var transactionDetails []models.TransactionDetail
+        if err := models.DB.Preload("Product").Preload("Hampers").Where("invoice_number = ?", transaction.InvoiceNumber).Find(&transactionDetails).Error; err != nil {
             if err == gorm.ErrRecordNotFound {
-                c.JSON(http.StatusNotFound, gin.H{"error": "transaction details not found for this user"})
+                c.JSON(http.StatusNotFound, gin.H{"error": "transaction details not found for invoice number"})
+                return
             } else {
-                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction details for this user"})
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction details for invoice number"})
+                return
             }
-            return
         }
+        allTransactionDetails = append(allTransactionDetails, transactionDetails...)
     }
 
-    c.JSON(http.StatusOK, gin.H{"transaction_details": transactionDetails})
+    c.JSON(http.StatusOK, gin.H{"transaction_details": allTransactionDetails})
+}
+
+func GetPhotosByInvoiceNumber(c *gin.Context) {
+	invoiceNumber := c.Param("invoiceNumber")
+
+	var transactionDetails []models.TransactionDetail
+	if err := models.DB.Preload("Product").Preload("Hampers").Where("invoice_number = ?", invoiceNumber).Find(&transactionDetails).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "transaction details not found for this invoice number"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction details for this invoice number"})
+		}
+		return
+	}
+
+	var photos []string
+	for _, detail := range transactionDetails {
+		if detail.Product != nil && detail.Product.Photo != "" {
+			photos = append(photos, detail.Product.Photo)
+		}
+		if detail.Hampers != nil && detail.Hampers.Photo != "" {
+			photos = append(photos, detail.Hampers.Photo)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"photos": photos})
+}
+
+func GetPhotosByUserID(c *gin.Context) {
+	userId := c.Param("userId")
+
+	var transactions []models.Transaction
+	if err := models.DB.Where("user_id = ?", userId).Find(&transactions).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found for this user"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transactions for this user"})
+		}
+		return
+	}
+
+	var photos []string
+	for _, transaction := range transactions {
+		var transactionDetails []models.TransactionDetail
+		if err := models.DB.Preload("Product").Preload("Hampers").Where("invoice_number = ?", transaction.InvoiceNumber).Find(&transactionDetails).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"error": "transaction details not found for invoice number"})
+				return
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction details for invoice number"})
+				return
+			}
+		}
+
+		for _, detail := range transactionDetails {
+			if detail.Product != nil && detail.Product.Photo != "" {
+				photos = append(photos, detail.Product.Photo)
+			}
+			if detail.Hampers != nil && detail.Hampers.Photo != "" {
+				photos = append(photos, detail.Hampers.Photo)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"photos": photos})
 }

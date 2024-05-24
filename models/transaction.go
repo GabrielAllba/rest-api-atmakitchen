@@ -2,7 +2,7 @@ package models
 
 type Transaction struct {
 	ID                int     `gorm:"primaryKey;" json:"id"`
-	InvoiceNumber     string  `gorm:"type:varchar(255)" json:"invoice_number"`
+	InvoiceNumber     string  `gorm:"index" json:"invoice_number"`
 	UserId            int     `gorm:"index" json:"user_id"`
 	User              User    `gorm:"foreignKey:UserId" json:"user"`
 	LunasPada         string  `gorm:"type:varchar(255)" json:"lunas_pada"`
@@ -22,4 +22,5 @@ type Transaction struct {
 	PaymentProof      string  `gorm:"type:varchar(255)" json:"payment_proof"`
 	PoinUser          float64 `gorm:"type:float;" json:"poin_user"`
 	TotalPoinUser     float64 `gorm:"type:float;" json:"total_poin_user"`
+	// TransactionDetails []TransactionDetail `gorm:"foreignKey:InvoiceNumber;references:InvoiceNumber"`
 }
