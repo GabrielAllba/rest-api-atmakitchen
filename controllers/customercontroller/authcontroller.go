@@ -293,3 +293,17 @@ func Index(c *gin.Context) {
 	models.DB.Find(&user)
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
+
+func EmailExists(c *gin.Context) {
+	email := c.Query("email")
+
+	var user models.User
+	if err := models.DB.Where("email = ?", email).First(&user).Error; err == nil {
+		// Email exists
+		c.JSON(http.StatusOK, gin.H{"exists": true})
+		return
+	}
+
+	// Email does not exist
+	c.JSON(http.StatusOK, gin.H{"exists": false})
+}
