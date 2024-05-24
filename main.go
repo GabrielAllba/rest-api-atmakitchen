@@ -263,6 +263,7 @@ func main() {
 		transaction_details.POST("", transactiondetailcontroller.Create)
 		transaction_details.GET("", transactiondetailcontroller.Index)
 		transaction_details.GET("/invoice/:invoiceNumber", transactiondetailcontroller.GetByInvoiceNumber)
+		transaction_details.GET("/user/:userId", transactiondetailcontroller.GetByUserID)
 		transaction_details.GET("/:id", transactiondetailcontroller.Show)
 		transaction_details.DELETE("/:id", transactiondetailcontroller.Delete)
 		transaction_details.PUT("/:id", transactiondetailcontroller.Update)

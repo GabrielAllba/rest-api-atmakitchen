@@ -112,3 +112,33 @@ func Update(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"transaction_details": transaction_details})
 }
+
+func GetByUserID(c *gin.Context) {
+    userID := c.Param("userId")
+
+    // Retrieve transactions for the given user ID
+    var transactions []models.Transaction
+    if err := models.DB.Where("user_id = ?", userID).Find(&transactions).Error; err != nil {
+        if err == gorm.ErrRecordNotFound {
+            c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found for this user"})
+        } else {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transactions for this user"})
+        }
+        return
+    }
+
+    // Retrieve transaction details for each transaction
+    var transactionDetails []models.TransactionDetail
+    for _, transaction := range transactions {
+        if err := models.DB.Where("invoice_number = ?", transaction.InvoiceNumber).Find(&transactionDetails).Error; err != nil {
+            if err == gorm.ErrRecordNotFound {
+                c.JSON(http.StatusNotFound, gin.H{"error": "transaction details not found for this user"})
+            } else {
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction details for this user"})
+            }
+            return
+        }
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction_details": transactionDetails})
+}
