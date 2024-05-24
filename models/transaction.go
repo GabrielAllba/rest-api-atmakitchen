@@ -6,7 +6,7 @@ type Transaction struct {
 	UserId            int     `gorm:"index" json:"user_id"`
 	User              User    `gorm:"foreignKey:UserId" json:"user"`
 	LunasPada         string  `gorm:"type:varchar(255)" json:"lunas_pada"`
-	TanggalAmbil      string  `gorm:"type:varchar(255)" json:"tanggal_ambil"`
+	TanggalPemesanan  string  `gorm:"type:varchar(255)" json:"tanggal_pemesanan"`
 	NamaPenerima      string  `gorm:"type:varchar(255)" json:"nama_penerima"`
 	AlamatPenerima    string  `gorm:"type:varchar(255)" json:"alamat_penerima"`
 	NoTelpPenerima    string  `gorm:"type:varchar(255)" json:"no_telp_penerima"`
@@ -16,11 +16,10 @@ type Transaction struct {
 	DeliveryFee       float64 `gorm:"type:float;" json:"delivery_fee"`
 	TotalPrice        float64 `gorm:"type:float;" json:"total_price"`
 	TransferNominal   float64 `gorm:"type:float;" json:"transfer_nominal"`
-	PointUser         float64 `gorm:"type:float;" json:"point_user"`
+	PointUsed         float64 `gorm:"type:float;" json:"point_used"`
 	PointIncome       float64 `gorm:"type:float;" json:"point_income"`
 	PaymentDate       string  `gorm:"type:varchar(255);" json:"payment_date"`
 	PaymentProof      string  `gorm:"type:varchar(255)" json:"payment_proof"`
-	PoinUser          float64 `gorm:"type:float;" json:"poin_user"`
 	TotalPoinUser     float64 `gorm:"type:float;" json:"total_poin_user"`
 	// TransactionDetails []TransactionDetail `gorm:"foreignKey:InvoiceNumber;references:InvoiceNumber"`
 }

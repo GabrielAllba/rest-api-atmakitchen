@@ -14,6 +14,7 @@ import (
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
+	"backend-atmakitchen/controllers/quotacontroller"
 	"backend-atmakitchen/controllers/transactioncontroller"
 	"backend-atmakitchen/controllers/transactiondetailcontroller"
 
@@ -91,10 +92,8 @@ func main() {
 		user.POST("/login", customerauthcontroller.Login)
 		user.POST("/logout", customerauthcontroller.Logout)
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
-		// user.GET("/user", customerauthcontroller.GetUser)
-		// user.GET("/users/:role_id", customerauthcontroller.GetUsersByRoleID)
+		user.GET("/email-exists", customerauthcontroller.EmailExists)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
-
 	}
 
 	// admin
@@ -105,7 +104,6 @@ func main() {
 			role.POST("", rolecontroller.Create)
 			role.GET("/:id", rolecontroller.Show)
 		}
-
 		admin.POST("/login", adminauthcontroller.Login)
 		admin.POST("/logout", adminauthcontroller.Logout)
 		admin.GET("/token/validate/:tokenString", adminauthcontroller.Validate)
@@ -212,7 +210,9 @@ func main() {
 		users.GET("/cari", usercontroller.Search)
 		users.DELETE("/:id", usercontroller.Delete)
 		// users.PUT("/:id", usercontroller.Update)
-		// users.GET("/:id", usercontroller.Show)
+		users.GET("/:id", usercontroller.Show)
+		users.PUT("/update-points/:id/:points", usercontroller.UpdatePoints)
+
 	}
 	
 	token := r.Group("/api/token")
@@ -275,6 +275,17 @@ func main() {
 	{
 		invoice_number.POST("", invoicecountercontroller.Create)
 	}
+
+	 quotaRoutes := r.Group("/api/quota")
+    {
+        quotaRoutes.POST("/", quotacontroller.Create)
+        quotaRoutes.GET("/:id", quotacontroller.Show)
+        quotaRoutes.GET("/", quotacontroller.Index)
+        quotaRoutes.DELETE("/:id", quotacontroller.Delete)
+        quotaRoutes.PUT("/:id", quotacontroller.Update)
+        quotaRoutes.GET("/product", quotacontroller.GetByProductAndDate)
+        quotaRoutes.GET("/hampers", quotacontroller.GetByHampersAndDate)
+    }
 
 
 	// Define the route

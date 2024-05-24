@@ -336,3 +336,57 @@ func Delete(c *gin.Context) {
 	models.DB.Delete(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }
+
+func Show(c *gin.Context) {
+	var user models.User
+	id := c.Param("id")
+	if err := models.DB.First(&user, id).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+			return
+		default:
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	// Successfully found the user
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+func UpdatePoints(c *gin.Context) {
+	var user models.User
+	id := c.Param("id")
+	pointsStr := c.Param("points")
+
+	// Convert points query parameter to an integer
+	points, err := strconv.Atoi(pointsStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid points parameter"})
+		return
+	}
+
+	// Retrieve the user by ID
+	if err := models.DB.First(&user, id).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		default:
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	// Update the user's points
+	user.TotalPoint = points
+
+	// Save the updated user record to the database
+	if err := models.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update points"})
+		return
+	}
+
+	// Return the updated user
+	c.JSON(http.StatusOK, gin.H{"message": "Points updated successfully", "user": user})
+}
