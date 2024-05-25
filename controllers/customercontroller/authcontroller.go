@@ -308,4 +308,3 @@ func EmailExists(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"exists": false})
 }
 
-

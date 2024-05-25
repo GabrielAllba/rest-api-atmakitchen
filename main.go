@@ -18,6 +18,7 @@ import (
 	"backend-atmakitchen/controllers/transactioncontroller"
 	"backend-atmakitchen/controllers/transactiondetailcontroller"
 
+	"backend-atmakitchen/controllers/presensicontroller"
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/resepcontroller"
@@ -94,6 +95,8 @@ func main() {
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
 		user.GET("/email-exists", customerauthcontroller.EmailExists)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
+		
+
 	}
 
 	// admin
@@ -209,7 +212,7 @@ func main() {
 		users.GET("", customerauthcontroller.Index)
 		users.GET("/cari", usercontroller.Search)
 		users.DELETE("/:id", usercontroller.Delete)
-		// users.PUT("/:id", usercontroller.Update)
+		users.PUT("/updateUser/:email", usercontroller.UpdateUser)
 		users.GET("/:id", usercontroller.Show)
 		users.PUT("/update-points/:id/:points", usercontroller.UpdatePoints)
 
@@ -286,6 +289,14 @@ func main() {
         quotaRoutes.GET("/product", quotacontroller.GetByProductAndDate)
         quotaRoutes.GET("/hampers", quotacontroller.GetByHampersAndDate)
     }
+
+
+	presensi := r.Group("/api/presensi")
+	{
+		presensi.POST("",presensicontroller.Create)
+		presensi.GET("",presensicontroller.Index)
+		presensi.PUT("/:id",presensicontroller.Update)
+	}
 
 
 	// Define the route
