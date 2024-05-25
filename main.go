@@ -14,6 +14,7 @@ import (
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
 
+	"backend-atmakitchen/controllers/presensicontroller"
 	"backend-atmakitchen/controllers/productcontroller"
 	"backend-atmakitchen/controllers/producttypecontroller"
 	"backend-atmakitchen/controllers/resepcontroller"
@@ -91,6 +92,7 @@ func main() {
 		// user.GET("/user", customerauthcontroller.GetUser)
 		// user.GET("/users/:role_id", customerauthcontroller.GetUsersByRoleID)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
+		
 
 	}
 
@@ -208,7 +210,7 @@ func main() {
 		users.GET("", customerauthcontroller.Index)
 		users.GET("/cari", usercontroller.Search)
 		users.DELETE("/:id", usercontroller.Delete)
-		// users.PUT("/:id", usercontroller.Update)
+		users.PUT("/updateUser/:email", usercontroller.UpdateUser)
 		// users.GET("/:id", usercontroller.Show)
 	}
 	
@@ -241,6 +243,14 @@ func main() {
 		cart.GET("/:id", cartcontroller.Show)
 		cart.DELETE("/:id", cartcontroller.Delete)
 		cart.PUT("/:id", cartcontroller.Update)
+	}
+
+
+	presensi := r.Group("/api/presensi")
+	{
+		presensi.POST("",presensicontroller.Create)
+		presensi.GET("",presensicontroller.Index)
+		presensi.PUT("/:id",presensicontroller.Update)
 	}
 
 

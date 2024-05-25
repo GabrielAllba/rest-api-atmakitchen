@@ -336,3 +336,30 @@ func Delete(c *gin.Context) {
 	models.DB.Delete(&user)
 	c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }
+
+func UpdateUser(c *gin.Context) {
+    var user models.User
+
+    // Get email from the URL parameter
+    email := c.Param("email")
+
+    // Check if the user exists
+    if err := models.DB.Where("email = ?", email).First(&user).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
+
+    // Bind JSON data to user struct
+    if err := c.BindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Update the user in the database
+    if err := models.DB.Save(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "User updated successfully", "user": user})
+}
