@@ -16,7 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Signup(c *gin.Context){
+func Signup(c *gin.Context) {
 	var user models.User
 
 	// Bind JSON data to user struct
@@ -32,28 +32,24 @@ func Signup(c *gin.Context){
 		return
 	}
 
-	
-	
-
-	// total point	
+	// total point
 	totalP, err := strconv.Atoi(strconv.Itoa(user.TotalPoint))
-	if(err != nil){
+	if err != nil {
 		fmt.Print(totalP)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Total point invalid"})
 		return
 	}
-	
 
 	// role id
 	roleId, err := strconv.Atoi(strconv.Itoa(user.RoleId))
 	if err != nil {
-		
+
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Format role id tidak benar"})
 		return
 	}
 	// check role id in database
 	var role models.Role
-	if err := models.DB.Where("id = ?", roleId).First(&role).Error; err != nil{
+	if err := models.DB.Where("id = ?", roleId).First(&role).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Role tersebut tidak tersedia"})
 		return
 	}
@@ -62,9 +58,9 @@ func Signup(c *gin.Context){
 	// password
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error":"Failed to hash password",
+			"error": "Failed to hash password",
 		})
 		return
 	}
@@ -80,26 +76,21 @@ func Signup(c *gin.Context){
 		return
 	}
 
-
-	
-	
 	user = models.User{Name: user.Name, Email: user.Email, Password: string(hash), Username: user.Username, BornDate: user.BornDate, PhoneNumber: user.PhoneNumber, TotalPoint: user.TotalPoint, RoleId: user.RoleId}
 	result := models.DB.Create(&user)
 
-	if result.Error != nil{
+	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"user": "Gagal membuat user"})
 		return
 	}
 
 	var returnUser models.User
 	models.DB.Preload("Role").First(&returnUser, "id = ?", user.Id)
-	
 
 	c.JSON(http.StatusOK, gin.H{"User": returnUser})
 }
 
-
-func Login(c *gin.Context){
+func Login(c *gin.Context) {
 	var req_user models.User
 
 	// Bind other form data fields
@@ -113,13 +104,12 @@ func Login(c *gin.Context){
 		return
 	}
 
-	
 	var user models.User
 	models.DB.Preload("Role").First(&user, "email = ?", req_user.Email)
 
-	if user.Id == 0{
+	if user.Id == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error" : "Email tidak ditemukan",
+			"error": "Email tidak ditemukan",
 		})
 
 		return
@@ -130,13 +120,13 @@ func Login(c *gin.Context){
 			"error": "User role bukan Customer",
 		})
 		return
-    }
+	}
 
-	err :=	bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req_user.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req_user.Password))
 
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error" : "Invalid password",
+			"error": "Invalid password",
 		})
 
 		return
@@ -144,15 +134,15 @@ func Login(c *gin.Context){
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"subject": user.Id,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error" : "Failed to create token",
+			"error": "Failed to create token",
 		})
 
 		return
@@ -161,11 +151,11 @@ func Login(c *gin.Context){
 	// send it back
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600 * 24 * 30, "","", false, true)
-		
+	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+
 	c.JSON(http.StatusOK, gin.H{
-		"token":tokenString,
-		"user":user,
+		"token": tokenString,
+		"user":  user,
 	})
 }
 func Logout(c *gin.Context) {
@@ -177,34 +167,34 @@ func Logout(c *gin.Context) {
 }
 
 func Validate(c *gin.Context) {
-    tokenString := c.Param("tokenString")
-    log.Printf("Received token string: %s", tokenString)
+	tokenString := c.Param("tokenString")
+	log.Printf("Received token string: %s", tokenString)
 
-    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-            return nil, jwt.ErrSignatureInvalid
-        }
-        return []byte(os.Getenv("SECRET")), nil
-    })
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return []byte(os.Getenv("SECRET")), nil
+	})
 
-    if err != nil {
-        log.Printf("Error parsing token: %v", err)
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-        return
-    }
+	if err != nil {
+		log.Printf("Error parsing token: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
 
-    if !token.Valid {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-        return
-    }
+	if !token.Valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
 
-    claims, ok := token.Claims.(jwt.MapClaims)
-    if !ok {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract claims from token"})
-        return
-    }
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Failed to extract claims from token"})
+		return
+	}
 
-    c.JSON(http.StatusOK, claims)
+	c.JSON(http.StatusOK, claims)
 }
 
 // func GetUser(c *gin.Context) {
@@ -254,40 +244,40 @@ func Validate(c *gin.Context) {
 
 // Function signature
 func UpdatePassword(c *gin.Context) {
-    var user models.User
+	var user models.User
 
-    // Get email from the URL parameter
-    email := c.Param("email")
+	// Get email from the URL parameter
+	email := c.Param("email")
 
-    // Check if the user exists
-    if err := models.DB.Where("email = ?", email).First(&user).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
+	// Check if the user exists
+	if err := models.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
 
-    // Bind JSON data to user struct
-    if err := c.BindJSON(&user); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Bind JSON data to user struct
+	if err := c.BindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    // Hash the password
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-        return
-    }
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
 
-    // Update the user's password with the hashed one
-    user.Password = string(hashedPassword)
+	// Update the user's password with the hashed one
+	user.Password = string(hashedPassword)
 
-    // Update the user in the database
-    if err := models.DB.Save(&user).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
-        return
-    }
+	// Update the user in the database
+	if err := models.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully", "user": user})
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully", "user": user})
 }
 
 func Index(c *gin.Context) {
@@ -300,12 +290,9 @@ func Search(c *gin.Context) {
 	query := c.Query("query")
 	var user []models.User
 
-	
 	query = strings.ToLower(query)
 	result := models.DB.Where("LOWER(name) LIKE ? OR LOWER(email) LIKE ? OR LOWER(username) LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
-	
 
-	
 	if err := result.Find(&user).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -416,4 +403,57 @@ func UpdatePoints(c *gin.Context) {
 
 	// Return the updated user
 	c.JSON(http.StatusOK, gin.H{"message": "Points updated successfully", "user": user})
+}
+
+func SearchType(c *gin.Context) {
+	queryStr := c.Query("query")
+	query, err := strconv.Atoi(queryStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query format"})
+		return
+	}
+	var users []models.User
+
+	result := models.DB.Where("role_id = ?", query)
+
+	if err := result.Find(&users).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No customers found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
+}
+
+func SearhUserByType(c *gin.Context) {
+	searchQuery := c.Query("search_query")
+	queryStr := c.Query("query")
+	query, err := strconv.Atoi(queryStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query format"})
+		return
+	}
+	var users []models.User
+
+	searchQuery = strings.ToLower(searchQuery)
+
+	result := models.DB.Where("(LOWER(name) LIKE ? OR LOWER(email) LIKE ? OR phone_number LIKE ?) AND role_id = ?", "%"+searchQuery+"%", "%"+searchQuery+"%", "%"+searchQuery+"%", query)
+
+	if err := result.Find(&users).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			c.JSON(http.StatusNotFound, gin.H{"message": "No customers found"})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"users": users})
 }

@@ -14,6 +14,7 @@ import (
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
+	"backend-atmakitchen/controllers/pengeluaranlaincontroller"
 	"backend-atmakitchen/controllers/quotacontroller"
 	"backend-atmakitchen/controllers/transactioncontroller"
 	"backend-atmakitchen/controllers/transactiondetailcontroller"
@@ -84,7 +85,6 @@ func main() {
 		product.GET("/type/search", productcontroller.SearchProductByType)
 		product.GET("/tag/search", productcontroller.SearchProductByTag)
 	}
-
 
 	// customer
 	user := r.Group("/api/customer")
@@ -185,7 +185,6 @@ func main() {
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}
 
-	
 	//bahan
 	bahan := r.Group("/api/bahan")
 	{
@@ -206,7 +205,6 @@ func main() {
 		roles.DELETE("/:id", rolecontroller.Delete)
 	}
 
-
 	users := r.Group("/api/users")
 	{
 		users.GET("", customerauthcontroller.Index)
@@ -215,9 +213,10 @@ func main() {
 		users.PUT("/updateUser/:email", usercontroller.UpdateUser)
 		users.GET("/:id", usercontroller.Show)
 		users.PUT("/update-points/:id/:points", usercontroller.UpdatePoints)
-
+		users.GET("/customer", usercontroller.SearchType)
+		users.GET("/customer/search", usercontroller.SearhUserByType)
 	}
-	
+
 	token := r.Group("/api/token")
 	{
 		token.POST("/create/:user_id", tokencontroller.CreateToken)
@@ -235,7 +234,7 @@ func main() {
 		pembelian_bahan_baku.DELETE("/:id", pembelianBahanBakubakucontroller.Delete)
 		pembelian_bahan_baku.GET("/:id", pembelianBahanBakubakucontroller.Show)
 		pembelian_bahan_baku.PUT("/:id", pembelianBahanBakubakucontroller.Update)
-		
+
 	}
 
 	// cart
@@ -273,23 +272,33 @@ func main() {
 		transaction_details.GET("/invoice/photos/:invoiceNumber", transactiondetailcontroller.GetPhotosByInvoiceNumber)
 		transaction_details.GET("/invoice/photos/user/:userId", transactiondetailcontroller.GetPhotosByUserID)
 	}
-	
+
 	invoice_number := r.Group("/api/invoice_number")
 	{
 		invoice_number.POST("", invoicecountercontroller.Create)
 	}
 
-	 quotaRoutes := r.Group("/api/quota")
-    {
-        quotaRoutes.POST("/", quotacontroller.Create)
-        quotaRoutes.GET("/:id", quotacontroller.Show)
-        quotaRoutes.GET("/", quotacontroller.Index)
-        quotaRoutes.DELETE("/:id", quotacontroller.Delete)
-        quotaRoutes.PUT("/:id", quotacontroller.Update)
-        quotaRoutes.GET("/product", quotacontroller.GetByProductAndDate)
-        quotaRoutes.GET("/hampers", quotacontroller.GetByHampersAndDate)
-    }
+	quotaRoutes := r.Group("/api/quota")
+	{
+		quotaRoutes.POST("/", quotacontroller.Create)
+		quotaRoutes.GET("/:id", quotacontroller.Show)
+		quotaRoutes.GET("/", quotacontroller.Index)
+		quotaRoutes.DELETE("/:id", quotacontroller.Delete)
+		quotaRoutes.PUT("/:id", quotacontroller.Update)
+		quotaRoutes.GET("/product", quotacontroller.GetByProductAndDate)
+		quotaRoutes.GET("/hampers", quotacontroller.GetByHampersAndDate)
+	}
 
+	pengeluaran_lain := r.Group("/api/pengeluaran_lain")
+	{
+		//create, index, show, delete, search, update
+		pengeluaran_lain.POST("", pengeluaranlaincontroller.Create)
+		pengeluaran_lain.GET("", pengeluaranlaincontroller.Index)
+		pengeluaran_lain.GET("/:id", pengeluaranlaincontroller.Show)
+		pengeluaran_lain.DELETE("/:id", pengeluaranlaincontroller.Delete)
+		pengeluaran_lain.GET("/search", pengeluaranlaincontroller.Search)
+		pengeluaran_lain.PUT("/:id", pengeluaranlaincontroller.Update)
+	}
 
 	presensi := r.Group("/api/presensi")
 	{
