@@ -84,6 +84,8 @@ func main() {
 		product.GET("/type", productcontroller.SearchType)
 		product.GET("/type/search", productcontroller.SearchProductByType)
 		product.GET("/tag/search", productcontroller.SearchProductByTag)
+		product.PUT("/stock/:id", productcontroller.UpdateStock)
+
 	}
 
 	// customer
@@ -166,6 +168,7 @@ func main() {
 		hampers.DELETE("/:id", hamperscontroller.Delete)
 		hampers.DELETE("/detail/:id", hamperscontroller.DeleteDetailHampers)
 		hampers.PUT("/detail/:id", hamperscontroller.UpdateDetail)
+		hampers.PUT("/stock/:id", hamperscontroller.UpdateStock)
 
 	}
 
@@ -287,6 +290,18 @@ func main() {
 		quotaRoutes.PUT("/:id", quotacontroller.Update)
 		quotaRoutes.GET("/product", quotacontroller.GetByProductAndDate)
 		quotaRoutes.GET("/hampers", quotacontroller.GetByHampersAndDate)
+
+		quotaRoutes.PUT("/tanggal", quotacontroller.UpdateQuota)
+		quotaRoutes.POST("/tanggal", quotacontroller.InsertQuota)
+		quotaRoutes.GET("/product/tanggal/:product_id/:tanggal", quotacontroller.GetQuotaByProductIDAndTanggal)
+
+		
+		quotaRoutes.PUT("/hampers/tanggal", quotacontroller.UpdateQuotaHampers)
+		quotaRoutes.POST("/hampers/tanggal", quotacontroller.InsertQuotaHampers)
+		quotaRoutes.GET("/hampers/tanggal/:hampers_id/:tanggal", quotacontroller.GetQuotaByHampersIDAndTanggal)
+
+
+
 	}
 
 	pengeluaran_lain := r.Group("/api/pengeluaran_lain")

@@ -372,3 +372,47 @@ func UpdateDetail(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"detail_hampers": detailHampers})
 }
+
+func UpdateStock(c *gin.Context) {
+	// Retrieve product ID from the URL parameters
+	productID := c.Param("id")
+
+	// Parse the product ID to an integer
+	id, err := strconv.Atoi(productID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid hampers ID"})
+		return
+	}
+
+	var request struct {
+		Stock float64 `json:"stock" binding:"required"`
+	}
+
+	// Bind the incoming JSON payload to the request struct
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find the product by ID
+	var hampers models.Hampers
+	if err := models.DB.First(&hampers, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "hampers not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update the stock
+	hampers.Stock = request.Stock
+
+	// Save the changes to the database
+	if err := models.DB.Save(&hampers).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Stock updated successfully", "hampers": hampers})
+}

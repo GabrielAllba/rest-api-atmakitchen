@@ -31,19 +31,28 @@ func GetByUserID(c *gin.Context) {
 }
     
 func Create(c *gin.Context) {
-    var cart models.Cart
+	var cart models.Cart
 
-    if err := c.BindJSON(&cart); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Bind the incoming JSON payload to the cart struct
+	if err := c.BindJSON(&cart); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := models.DB.Create(&cart).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create cart"})
-        return
-    }
+	// Create the cart entry in the database
+	if err := models.DB.Create(&cart).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create cart"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"cart": cart})
+	// Retrieve the created cart entry with the associated product details preloaded
+	if err := models.DB.Preload("Product").Preload("Hampers").First(&cart, cart.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to preload product"})
+		return
+	}
+
+	// Return the cart with the preloaded product details
+	c.JSON(http.StatusOK, gin.H{"cart": cart})
 }
 
 func Show(c *gin.Context) {
