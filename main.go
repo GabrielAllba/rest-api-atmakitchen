@@ -261,6 +261,10 @@ func main() {
 		transactions.DELETE("/:id", transactioncontroller.Delete)
 		transactions.PUT("/:id", transactioncontroller.Update)
 		transactions.PUT("/status/:id/:transaction_status", transactioncontroller.UpdateStatus)
+		transactions.PUT("/transfer_nominal/:id", transactioncontroller.UpdateTotalAfterDeliveryFee)
+		transactions.PUT("/bukti_pembayaran/:invoice_number", transactioncontroller.UpdateBuktiPembayaran)
+		
+		transactions.PUT("/status/invoice/:invoice_number/:transaction_status", transactioncontroller.UpdateStatusByInvoice)
 	}
 
 	// transaction_detail

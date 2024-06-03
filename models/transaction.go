@@ -21,5 +21,6 @@ type Transaction struct {
 	PaymentDate       string  `gorm:"type:varchar(255);" json:"payment_date"`
 	PaymentProof      string  `gorm:"type:varchar(255)" json:"payment_proof"`
 	TotalPoinUser     float64 `gorm:"type:float;" json:"total_poin_user"`
+	UserTransfer      float64 `gorm:"type:float;" json:"user_transfer"`
 	// TransactionDetails []TransactionDetail `gorm:"foreignKey:InvoiceNumber;references:InvoiceNumber"`
 }

@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 func Create(c *gin.Context) {
     // Parse form data including file upload
     err := c.Request.ParseMultipartForm(10 << 20) // 10 MB
