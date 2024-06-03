@@ -260,6 +260,7 @@ func main() {
 		transactions.GET("/:id", transactioncontroller.Show)
 		transactions.DELETE("/:id", transactioncontroller.Delete)
 		transactions.PUT("/:id", transactioncontroller.Update)
+		transactions.PUT("/status/:id/:transaction_status", transactioncontroller.UpdateStatus)
 	}
 
 	// transaction_detail
