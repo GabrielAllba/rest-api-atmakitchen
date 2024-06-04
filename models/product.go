@@ -16,6 +16,8 @@ type Product struct {
 	ProductType    ProductType  `gorm:"foreignKey:ProductTypeId" json:"product_type"`
 	ConsignationId *int         `gorm:"index" json:"consignation_id"`
 	Consignation   Consignation `gorm:"foreignKey:ConsignationId" json:"consignation"`
+	BahanReseps []BahanResep `gorm:"foreignKey:ProductId" json:"bahan_reseps"`
+
 }
 
 type FileUpload struct {

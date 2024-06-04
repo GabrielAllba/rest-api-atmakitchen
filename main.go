@@ -170,6 +170,7 @@ func main() {
 		hampers.DELETE("/detail/:id", hamperscontroller.DeleteDetailHampers)
 		hampers.PUT("/detail/:id", hamperscontroller.UpdateDetail)
 		hampers.PUT("/stock/:id", hamperscontroller.UpdateStock)
+		hampers.GET("/product/:hampers_id", hamperscontroller.GetProductsByHampersId)
 
 	}
 
@@ -288,8 +289,8 @@ func main() {
 		transaction_details.PUT("/:id", transactiondetailcontroller.Update)
 		transaction_details.GET("/invoice/photos/:invoiceNumber", transactiondetailcontroller.GetPhotosByInvoiceNumber)
 		transaction_details.GET("/invoice/photos/user/:userId", transactiondetailcontroller.GetPhotosByUserID)
-		transaction_details.GET("/check_bahan_stock/:transactionDetailID", transactiondetailcontroller.CheckBahanStock)
-
+		transaction_details.GET("/get_all_bahan/:id", transactiondetailcontroller.GetAllBahan)	
+		transaction_details.GET("/get_all_bahan/product/:product_id", transactiondetailcontroller.GetAllBahanByProductID)	
 	}
 
 	invoice_number := r.Group("/api/invoice_number")

@@ -11,7 +11,27 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+func GetProductsByHampersId(c *gin.Context) {
+	hampersId, err := strconv.Atoi(c.Param("hampers_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid hampers ID"})
+		return
+	}
 
+	var detailHampers []models.DetailHampers
+	err = models.DB.Preload("Product.BahanReseps").Preload("Product.BahanReseps.Bahan").Where("hampers_id = ?", hampersId).Find(&detailHampers).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching products for hampers ID"})
+		return
+	}
+
+	var products []models.Product
+	for _, detail := range detailHampers {
+		products = append(products, detail.Product)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"products": products})
+}
 func Index(c *gin.Context) {
 	var hampers []models.Hampers
 	models.DB.Find(&hampers)

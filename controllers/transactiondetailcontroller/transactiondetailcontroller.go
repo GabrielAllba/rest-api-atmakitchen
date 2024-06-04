@@ -1,7 +1,6 @@
 package transactiondetailcontroller
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -11,35 +10,77 @@ import (
 	"gorm.io/gorm"
 )
 
-func CheckBahanStock(c *gin.Context){
-    var transactionDetail models.TransactionDetail
 
- transactionDetailID := c.Param("transaction_detail_id")
-    // Fetch the TransactionDetail
-    if err := models.DB.Preload("Product").First(&transactionDetail, transactionDetailID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
-    }
 
-    // Check if transaction involves a product
-    if transactionDetail.ProductId != nil && transactionDetail.ProductQuantity != nil {
-        var bahanResep []models.BahanResep
-        // Fetch the BahanResep related to the Product
-        if err := models.DB.Preload("Bahan").Where("product_id = ?", *transactionDetail.ProductId).Find(&bahanResep).Error; err != nil {
-            c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
-        }
+func GetAllBahan(c *gin.Context) {
+	transactionDetailIDStr := c.Param("id")
 
-        // Iterate through each BahanResep and check the stock of each Bahan
-        for _, br := range bahanResep {
-            requiredQuantity := br.Quantity * *transactionDetail.ProductQuantity
-            if br.Bahan.Stok < requiredQuantity {
-                log.Printf("Insufficient stock for Bahan ID %d", br.BahanId)
-                	c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
+	transactionDetailID, err := strconv.Atoi(transactionDetailIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid transaction detail ID"})
+		return
+	}
 
-            }
-        }
-    }
+	var transactionDetail models.TransactionDetail
+	if err := models.DB.Preload("Product").First(&transactionDetail, transactionDetailID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "transaction detail not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transaction detail"})
+		}
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"stock": "ok"})
+	if transactionDetail.ProductId == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Transaction detail does not have a product ID"})
+		return
+	}
+
+	var bahanResep []models.BahanResep
+	if err := models.DB.Preload("Bahan").Where("product_id = ?", *transactionDetail.ProductId).Find(&bahanResep).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bahan for product"})
+		return
+	}
+
+	var allBahan []models.Bahan
+	for _, br := range bahanResep {
+		allBahan = append(allBahan, br.Bahan)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"bahan": allBahan})
+}
+
+func GetAllBahanByProductID(c *gin.Context) {
+	productIDStr := c.Param("product_id")
+
+	productID, err := strconv.Atoi(productIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	var product models.Product
+	if err := models.DB.First(&product, productID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch product"})
+		}
+		return
+	}
+
+	var bahanResep []models.BahanResep
+	if err := models.DB.Preload("Bahan").Where("product_id = ?", productID).Find(&bahanResep).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch bahan for product"})
+		return
+	}
+
+	var allBahan []models.Bahan
+	for _, br := range bahanResep {
+		allBahan = append(allBahan, br.Bahan)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"bahan": allBahan})
 }
 
 
