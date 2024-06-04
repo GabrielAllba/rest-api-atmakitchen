@@ -144,6 +144,22 @@ func UpdateStatus(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
 
+func UpdateStatusByTransactionDetail(c *gin.Context) {
+    
+    var transaction_detail models.TransactionDetail
+
+    id := c.Param("id")
+    transaction_status := c.Param("transaction_status")
+
+    // Update the status of the related transaction detail
+    if err := models.DB.Model(&transaction_detail).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction_detail": transaction_detail})
+}
+
 func UpdateStatusByInvoice(c *gin.Context) {
     var transaction models.Transaction
     var transaction_detail models.TransactionDetail

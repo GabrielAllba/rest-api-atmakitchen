@@ -199,6 +199,7 @@ func main() {
 		bahan.GET("/search", bahancontroller.Search)
 		bahan.DELETE("/:id", bahancontroller.Delete)
 		bahan.PUT("/:id", bahancontroller.Update)
+		bahan.PUT("/quantity/:id/:quantity", bahancontroller.KurangiStock)
 	}	
 
 	// bahan resep
@@ -269,11 +270,15 @@ func main() {
 		transactions.GET("/:id", transactioncontroller.Show)
 		transactions.DELETE("/:id", transactioncontroller.Delete)
 		transactions.PUT("/:id", transactioncontroller.Update)
+
 		transactions.PUT("/status/:id/:transaction_status", transactioncontroller.UpdateStatus)
 		transactions.PUT("/transfer_nominal/:id", transactioncontroller.UpdateTotalAfterDeliveryFee)
-		transactions.PUT("/bukti_pembayaran/:invoice_number", transactioncontroller.UpdateBuktiPembayaran)
 		
+		transactions.PUT("/bukti_pembayaran/:invoice_number", transactioncontroller.UpdateBuktiPembayaran)
 		transactions.PUT("/status/invoice/:invoice_number/:transaction_status", transactioncontroller.UpdateStatusByInvoice)
+
+		// update by transaction detail id
+		transactions.PUT("/status/detail/:id/:transaction_status", transactioncontroller.UpdateStatusByTransactionDetail)
 	}
 
 	// transaction_detail

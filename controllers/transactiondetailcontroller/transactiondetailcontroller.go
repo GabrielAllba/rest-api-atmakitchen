@@ -157,8 +157,8 @@ func ProsesToday(c *gin.Context) {
         return
     }
 
-    // Preload Product and Hamper and filter by the given date
-    if err := models.DB.Preload("Product").Preload("Hampers").Where("DATE(tanggal_pengiriman) = ?", date).Find(&transaction_details).Error; err != nil {
+    // Preload Product and Hamper, filter by the given date, and status 'Diterima'
+    if err := models.DB.Preload("Product").Preload("Hampers").Where("DATE(tanggal_pengiriman) = ? AND transaction_status = ?", date, "Diterima").Find(&transaction_details).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }

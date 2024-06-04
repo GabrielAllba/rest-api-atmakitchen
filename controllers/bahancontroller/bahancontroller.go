@@ -3,6 +3,7 @@ package bahancontroller
 import (
 	"backend-atmakitchen/models"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -126,4 +127,39 @@ func Update(c *gin.Context) {
 
 	models.DB.Save(&bahan)
 	c.JSON(http.StatusOK, gin.H{"bahan": bahan})
+}
+func KurangiStock(c *gin.Context) {
+    var bahan models.Bahan
+    id := c.Param("id")
+    quantityStr := c.Param("quantity")
+
+    // Convert quantity to an integer
+    quantity, err := strconv.Atoi(quantityStr)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity"})
+        return
+    }
+
+    // Find the bahan record by its ID
+    if err := models.DB.Where("id = ?", id).First(&bahan).Error; err != nil {
+        
+        return
+    }
+
+    // Check if the stock is sufficient
+    if int(bahan.Stok) < quantity {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient stock"})
+        return
+    }
+
+    // Subtract the quantity from the stock
+    bahan.Stok -= float64(quantity)
+
+    // Save the updated bahan record back to the database
+    if err := models.DB.Save(&bahan).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Stock updated successfully", "bahan": bahan})
 }
