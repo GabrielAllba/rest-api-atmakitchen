@@ -76,6 +76,7 @@ func Index(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
+
 func Delete(c *gin.Context) {
     id := c.Param("id")
     intId, err := strconv.Atoi(id)

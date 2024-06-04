@@ -1,6 +1,7 @@
 package transactiondetailcontroller
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -9,6 +10,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
+
+func CheckBahanStock(c *gin.Context){
+    var transactionDetail models.TransactionDetail
+
+ transactionDetailID := c.Param("transaction_detail_id")
+    // Fetch the TransactionDetail
+    if err := models.DB.Preload("Product").First(&transactionDetail, transactionDetailID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
+    }
+
+    // Check if transaction involves a product
+    if transactionDetail.ProductId != nil && transactionDetail.ProductQuantity != nil {
+        var bahanResep []models.BahanResep
+        // Fetch the BahanResep related to the Product
+        if err := models.DB.Preload("Bahan").Where("product_id = ?", *transactionDetail.ProductId).Find(&bahanResep).Error; err != nil {
+            c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
+        }
+
+        // Iterate through each BahanResep and check the stock of each Bahan
+        for _, br := range bahanResep {
+            requiredQuantity := br.Quantity * *transactionDetail.ProductQuantity
+            if br.Bahan.Stok < requiredQuantity {
+                log.Printf("Insufficient stock for Bahan ID %d", br.BahanId)
+                	c.JSON(http.StatusNotFound, gin.H{"error": "transaction_details not found for this user"})
+
+            }
+        }
+    }
+
+	c.JSON(http.StatusOK, gin.H{"stock": "ok"})
+}
+
 
 func GetByInvoiceNumber(c *gin.Context) {
 	invoiceNumber := c.Param("invoiceNumber")
@@ -66,7 +99,25 @@ func Show(c *gin.Context) {
 func Index(c *gin.Context) {
     var transaction_details []models.TransactionDetail
 
-    if err := models.DB.Find(&transaction_details).Error; err != nil {
+    if err := models.DB.Preload("Product").Preload("Hampers").Find(&transaction_details).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction_details": transaction_details})
+}
+
+func ProsesToday(c *gin.Context) {
+    var transaction_details []models.TransactionDetail
+
+    date := c.Param("tanggal_pengiriman")
+    if date == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "tanggal_pengiriman is required"})
+        return
+    }
+
+    // Preload Product and Hamper and filter by the given date
+    if err := models.DB.Preload("Product").Preload("Hampers").Where("DATE(tanggal_pengiriman) = ?", date).Find(&transaction_details).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }

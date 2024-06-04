@@ -4,6 +4,7 @@ import (
 	adminauthcontroller "backend-atmakitchen/controllers/admincontroller"
 	"backend-atmakitchen/controllers/autologincontroller"
 	"backend-atmakitchen/controllers/bahancontroller"
+	"backend-atmakitchen/controllers/bahanresepcontroller"
 	"backend-atmakitchen/controllers/bankcontroller"
 	"backend-atmakitchen/controllers/cartcontroller"
 	"backend-atmakitchen/controllers/consignationcontroller"
@@ -197,6 +198,13 @@ func main() {
 		bahan.GET("/search", bahancontroller.Search)
 		bahan.DELETE("/:id", bahancontroller.Delete)
 		bahan.PUT("/:id", bahancontroller.Update)
+	}	
+
+	// bahan resep
+	bahan_resep := r.Group("/api/bahan_resep")
+	{
+		bahan_resep.GET("", bahanresepcontroller.Index)
+		bahan_resep.GET("/:product_id", bahanresepcontroller.Show)
 	}
 
 	roles := r.Group("/api/roles")
@@ -272,6 +280,7 @@ func main() {
 	{
 		transaction_details.POST("", transactiondetailcontroller.Create)
 		transaction_details.GET("", transactiondetailcontroller.Index)
+		transaction_details.GET("/proses_today/:tanggal_pengiriman", transactiondetailcontroller.ProsesToday)
 		transaction_details.GET("/invoice/:invoiceNumber", transactiondetailcontroller.GetByInvoiceNumber)
 		transaction_details.GET("/user/:userId", transactiondetailcontroller.GetByUserID)
 		transaction_details.GET("/:id", transactiondetailcontroller.Show)
@@ -279,6 +288,8 @@ func main() {
 		transaction_details.PUT("/:id", transactiondetailcontroller.Update)
 		transaction_details.GET("/invoice/photos/:invoiceNumber", transactiondetailcontroller.GetPhotosByInvoiceNumber)
 		transaction_details.GET("/invoice/photos/user/:userId", transactiondetailcontroller.GetPhotosByUserID)
+		transaction_details.GET("/check_bahan_stock/:transactionDetailID", transactiondetailcontroller.CheckBahanStock)
+
 	}
 
 	invoice_number := r.Group("/api/invoice_number")

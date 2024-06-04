@@ -235,8 +235,14 @@ func CreateDetail(c *gin.Context){
     bahanIdStr := c.PostForm("bahan_id")
     quantityStr := c.PostForm("quantity")
     unitStr := c.PostForm("unit")
+    productIdStr := c.PostForm("product_id")
 
     fixBahanId, err := strconv.ParseInt(bahanIdStr, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
+        return
+    }
+    fixProductId, err := strconv.ParseInt(productIdStr, 10, 32)
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
         return
@@ -252,6 +258,7 @@ func CreateDetail(c *gin.Context){
         BahanId: int(fixBahanId),
         Quantity: float64(fixQuantity),
         Unit: unitStr,
+        ProductId: int(fixProductId),
     }
 
     // Save the hampers to the database
