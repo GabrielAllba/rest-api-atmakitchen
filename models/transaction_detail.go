@@ -15,4 +15,5 @@ type TransactionDetail struct {
 	TanggalPengiriman *string  `gorm:"type:varchar(255)" json:"tanggal_pengiriman"`
 	TransactionStatus *string  `gorm:"type:varchar(255)" json:"transaction_status"`
 	JenisItem         *string  `gorm:"type:varchar(255)" json:"jenis_item"`
+	TanggalPemesanan  *string  `gorm:"type:varchar(255)" json:"tanggal_pemesanan"`
 }

@@ -12,6 +12,7 @@ import (
 	"backend-atmakitchen/controllers/emailcontroller"
 	"backend-atmakitchen/controllers/hamperscontroller"
 	"backend-atmakitchen/controllers/invoicecountercontroller"
+	"backend-atmakitchen/controllers/laporanpenjualancontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
 	pemakaianBahanBakuController "backend-atmakitchen/controllers/pemakaianbahanbakucontroller"
@@ -353,6 +354,12 @@ func main() {
 		pemakaian_bahan_baku.PUT("/:id", pemakaianBahanBakuController.Update)
 		pemakaian_bahan_baku.DELETE("/:id", pemakaianBahanBakuController.Delete)
 	}
+
+	laporan_penjualan := r.Group("/api/laporan_penjualan")
+	{
+		laporan_penjualan.GET("/:month/:year", laporanpenjualancontroller.GetByMonthAndYear)
+	}
+
 
 
 	// Define the route
