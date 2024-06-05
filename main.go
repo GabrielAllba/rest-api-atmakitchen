@@ -14,6 +14,7 @@ import (
 	"backend-atmakitchen/controllers/invoicecountercontroller"
 	moauthcontrollerauthcontroller "backend-atmakitchen/controllers/mocontroller"
 	ownerauthcontroller "backend-atmakitchen/controllers/ownercontroller"
+	pemakaianBahanBakuController "backend-atmakitchen/controllers/pemakaianbahanbakucontroller"
 	pembelianBahanBakubakucontroller "backend-atmakitchen/controllers/pembelianbahanbakucontroller"
 	"backend-atmakitchen/controllers/pengeluaranlaincontroller"
 	"backend-atmakitchen/controllers/quotacontroller"
@@ -342,6 +343,15 @@ func main() {
 		presensi.POST("",presensicontroller.Create)
 		presensi.GET("",presensicontroller.Index)
 		presensi.PUT("/:id",presensicontroller.Update)
+	}
+
+	pemakaian_bahan_baku := r.Group("/api/pemakaian_bahan_baku")
+	{
+		pemakaian_bahan_baku.POST("", pemakaianBahanBakuController.Create)
+		pemakaian_bahan_baku.GET("/:id", pemakaianBahanBakuController.Show)
+		pemakaian_bahan_baku.GET("", pemakaianBahanBakuController.Index)
+		pemakaian_bahan_baku.PUT("/:id", pemakaianBahanBakuController.Update)
+		pemakaian_bahan_baku.DELETE("/:id", pemakaianBahanBakuController.Delete)
 	}
 
 
