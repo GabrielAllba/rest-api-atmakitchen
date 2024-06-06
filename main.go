@@ -268,6 +268,9 @@ func main() {
 	{
 		transactions.POST("", transactioncontroller.Create)
 		transactions.GET("", transactioncontroller.Index)
+		transactions.GET("/tampil/:transaction_status", transactioncontroller.GetTransaksiByStatus)
+		transactions.GET("/pengiriman/:transaction_status", transactioncontroller.GetTransaksiByTwoStatus)
+		transactions.GET("/batal/:transaction_status", transactioncontroller.GetTransaksiCanceledReadyStok)
 		transactions.GET("/user/:userId", transactioncontroller.GetByUserID)
 		transactions.GET("/:id", transactioncontroller.Show)
 		transactions.DELETE("/:id", transactioncontroller.Delete)
