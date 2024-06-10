@@ -98,7 +98,6 @@ func main() {
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
 		user.GET("/email-exists", customerauthcontroller.EmailExists)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
-		
 
 	}
 
@@ -198,7 +197,7 @@ func main() {
 		bahan.GET("/search", bahancontroller.Search)
 		bahan.DELETE("/:id", bahancontroller.Delete)
 		bahan.PUT("/:id", bahancontroller.Update)
-	}	
+	}
 
 	// bahan resep
 	bahan_resep := r.Group("/api/bahan_resep")
@@ -262,6 +261,7 @@ func main() {
 	// transactions
 	transactions := r.Group("/api/transactions")
 	{
+		transactions.PUT("/reject/:userId", transactioncontroller.RejectTransaction)
 		transactions.POST("", transactioncontroller.Create)
 		transactions.GET("", transactioncontroller.Index)
 		transactions.GET("/user/:userId", transactioncontroller.GetByUserID)
@@ -271,7 +271,7 @@ func main() {
 		transactions.PUT("/status/:id/:transaction_status", transactioncontroller.UpdateStatus)
 		transactions.PUT("/transfer_nominal/:id", transactioncontroller.UpdateTotalAfterDeliveryFee)
 		transactions.PUT("/bukti_pembayaran/:invoice_number", transactioncontroller.UpdateBuktiPembayaran)
-		
+
 		transactions.PUT("/status/invoice/:invoice_number/:transaction_status", transactioncontroller.UpdateStatusByInvoice)
 	}
 
@@ -311,12 +311,9 @@ func main() {
 		quotaRoutes.POST("/tanggal", quotacontroller.InsertQuota)
 		quotaRoutes.GET("/product/tanggal/:product_id/:tanggal", quotacontroller.GetQuotaByProductIDAndTanggal)
 
-		
 		quotaRoutes.PUT("/hampers/tanggal", quotacontroller.UpdateQuotaHampers)
 		quotaRoutes.POST("/hampers/tanggal", quotacontroller.InsertQuotaHampers)
 		quotaRoutes.GET("/hampers/tanggal/:hampers_id/:tanggal", quotacontroller.GetQuotaByHampersIDAndTanggal)
-
-
 
 	}
 
@@ -333,11 +330,10 @@ func main() {
 
 	presensi := r.Group("/api/presensi")
 	{
-		presensi.POST("",presensicontroller.Create)
-		presensi.GET("",presensicontroller.Index)
-		presensi.PUT("/:id",presensicontroller.Update)
+		presensi.POST("", presensicontroller.Create)
+		presensi.GET("", presensicontroller.Index)
+		presensi.PUT("/:id", presensicontroller.Update)
 	}
-
 
 	// Define the route
 	r.GET("/api/images/:filename", getImage)
