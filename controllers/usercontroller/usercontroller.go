@@ -27,7 +27,12 @@ func GetBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"balance": user.Balance})
 }
 
-// Withdraw balance
+type WithdrawRequest struct {
+	Amount    float64 `json:"amount"`
+	BankName  string  `json:"bank_name"`
+	AccountNo string  `json:"account_no"`
+}
+
 func WithdrawBalance(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -36,10 +41,7 @@ func WithdrawBalance(c *gin.Context) {
 		return
 	}
 
-	var request struct {
-		Amount float64 `json:"amount"`
-	}
-
+	var request WithdrawRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -50,17 +52,29 @@ func WithdrawBalance(c *gin.Context) {
 		return
 	}
 
-	user.Balance -= request.Amount
-	models.DB.Save(&user)
+	// Optional: Validate bankName and accountNo if required
 
+	user.Balance -= request.Amount
+	if err := models.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user balance"})
+		return
+	}
+
+	// Create a withdrawal history with status "Pending Approval"
 	withdrawHistory := models.WithdrawHistory{
 		UserId:    user.Id,
 		Amount:    request.Amount,
+		BankName:  request.BankName,
+		AccountNo: request.AccountNo,
+		Status:    "Pending Approval",
 		CreatedAt: time.Now(),
 	}
-	models.DB.Create(&withdrawHistory)
+	if err := models.DB.Create(&withdrawHistory).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create withdrawal history"})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Withdrawal successful"})
+	c.JSON(http.StatusOK, gin.H{"message": "Withdrawal request submitted for approval"})
 }
 
 // Get withdraw history
@@ -68,6 +82,65 @@ func GetWithdrawHistory(c *gin.Context) {
 	id := c.Param("id")
 	var histories []models.WithdrawHistory
 	if err := models.DB.Where("user_id = ?", id).Find(&histories).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, histories)
+}
+
+func UpdateWithdrawStatus(c *gin.Context) {
+	id := c.Param("id")
+	status := c.Param("status")
+
+	// Temukan histori penarikan berdasarkan ID
+	var history models.WithdrawHistory
+	if err := models.DB.First(&history, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Withdraw history not found"})
+		return
+	}
+
+	// Pastikan histori penarikan berada dalam status "Pending Approval"
+	if history.Status != "Pending Approval" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Withdraw history is not pending approval"})
+		return
+	}
+
+	// Ambil data pengguna berdasarkan UserId di histori penarikan
+	var user models.User
+	if err := models.DB.First(&user, history.UserId).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user details"})
+		return
+	}
+
+	// Periksa status yang diminta dan lakukan tindakan yang sesuai
+	switch status {
+	case "approved":
+		history.Status = "Approved"
+	case "rejected":
+		history.Status = "Rejected"
+		// Kembalikan jumlah saldo pengguna
+		user.Balance += history.Amount
+		if err := models.DB.Save(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user balance"})
+			return
+		}
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status"})
+		return
+	}
+
+	// Simpan perubahan status histori penarikan
+	if err := models.DB.Save(&history).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update withdraw status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Withdrawal status updated"})
+}
+
+func GetAllWithdrawHistory(c *gin.Context) {
+	var histories []models.WithdrawHistory
+	if err := models.DB.Find(&histories).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
