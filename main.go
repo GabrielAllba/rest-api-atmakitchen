@@ -68,11 +68,12 @@ func main() {
 	{
 		autologin.POST("/login", autologincontroller.Login)
 		autologin.POST("/logout", autologincontroller.Logout)
+		autologin.GET("/cekRole", autologincontroller.CekRole)
 	}
 
 	email := r.Group("/api/email")
 	{
-		email.POST("/send", emailcontroller.SendEmail)
+		email.POST("/sendResetEmail", emailcontroller.SendResetPasswordEmail)
 	}
 
 	// product
@@ -100,7 +101,6 @@ func main() {
 		user.GET("/token/validate/:tokenString", customerauthcontroller.Validate)
 		user.GET("/email-exists", customerauthcontroller.EmailExists)
 		user.PUT("/updatepassword/:email", customerauthcontroller.UpdatePassword)
-		
 
 	}
 
@@ -203,7 +203,7 @@ func main() {
 		bahan.DELETE("/:id", bahancontroller.Delete)
 		bahan.PUT("/:id", bahancontroller.Update)
 		bahan.PUT("/quantity/:id/:quantity", bahancontroller.KurangiStock)
-	}	
+	}
 
 	// bahan resep
 	bahan_resep := r.Group("/api/bahan_resep")
@@ -231,6 +231,11 @@ func main() {
 		users.PUT("/update-points/:id/:points", usercontroller.UpdatePoints)
 		users.GET("/customer", usercontroller.SearchType)
 		users.GET("/customer/search", usercontroller.SearhUserByType)
+		users.GET("/:id/balance", usercontroller.GetBalance)
+		users.POST("/:id/withdraw", usercontroller.WithdrawBalance)
+		users.GET("/:id/withdraw/history", usercontroller.GetWithdrawHistory)
+		users.GET("/withdraw/history", usercontroller.GetAllWithdrawHistory)
+		users.PUT("/withdraw/history/:id/:status", usercontroller.UpdateWithdrawStatus)
 	}
 
 	token := r.Group("/api/token")
@@ -281,7 +286,7 @@ func main() {
 
 		transactions.PUT("/status/:id/:transaction_status", transactioncontroller.UpdateStatus)
 		transactions.PUT("/transfer_nominal/:id", transactioncontroller.UpdateTotalAfterDeliveryFee)
-		
+
 		transactions.PUT("/bukti_pembayaran/:invoice_number", transactioncontroller.UpdateBuktiPembayaran)
 		transactions.PUT("/status/invoice/:invoice_number/:transaction_status", transactioncontroller.UpdateStatusByInvoice)
 
@@ -305,8 +310,8 @@ func main() {
 		transaction_details.PUT("/:id", transactiondetailcontroller.Update)
 		transaction_details.GET("/invoice/photos/:invoiceNumber", transactiondetailcontroller.GetPhotosByInvoiceNumber)
 		transaction_details.GET("/invoice/photos/user/:userId", transactiondetailcontroller.GetPhotosByUserID)
-		transaction_details.GET("/get_all_bahan/:id", transactiondetailcontroller.GetAllBahan)	
-		transaction_details.GET("/get_all_bahan/product/:product_id", transactiondetailcontroller.GetAllBahanByProductID)	
+		transaction_details.GET("/get_all_bahan/:id", transactiondetailcontroller.GetAllBahan)
+		transaction_details.GET("/get_all_bahan/product/:product_id", transactiondetailcontroller.GetAllBahanByProductID)
 	}
 
 	invoice_number := r.Group("/api/invoice_number")
@@ -328,12 +333,9 @@ func main() {
 		quotaRoutes.POST("/tanggal", quotacontroller.InsertQuota)
 		quotaRoutes.GET("/product/tanggal/:product_id/:tanggal", quotacontroller.GetQuotaByProductIDAndTanggal)
 
-		
 		quotaRoutes.PUT("/hampers/tanggal", quotacontroller.UpdateQuotaHampers)
 		quotaRoutes.POST("/hampers/tanggal", quotacontroller.InsertQuotaHampers)
 		quotaRoutes.GET("/hampers/tanggal/:hampers_id/:tanggal", quotacontroller.GetQuotaByHampersIDAndTanggal)
-
-
 
 	}
 
@@ -350,9 +352,9 @@ func main() {
 
 	presensi := r.Group("/api/presensi")
 	{
-		presensi.POST("",presensicontroller.Create)
-		presensi.GET("",presensicontroller.Index)
-		presensi.PUT("/:id",presensicontroller.Update)
+		presensi.POST("", presensicontroller.Create)
+		presensi.GET("", presensicontroller.Index)
+		presensi.PUT("/:id", presensicontroller.Update)
 	}
 
 	pemakaian_bahan_baku := r.Group("/api/pemakaian_bahan_baku")
@@ -368,8 +370,6 @@ func main() {
 	{
 		laporan_penjualan.GET("/:month/:year", laporanpenjualancontroller.GetByMonthAndYear)
 	}
-
-
 
 	// Define the route
 	r.GET("/api/images/:filename", getImage)
