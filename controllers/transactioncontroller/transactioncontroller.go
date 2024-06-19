@@ -78,6 +78,18 @@ func Index(c *gin.Context) {
 }
 
 func GetTransaksiByStatus(c *gin.Context) {
+    var transactions []models.TransactionDetail
+    
+    transactionStatus := c.Param("transaction_status")
+
+    if err := models.DB.Preload("Product").Preload("Hampers").Where("transaction_status = ?", transactionStatus).Find(&transactions).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction_details": transactions})
+}
+func GetTransaksiByStatusAyas(c *gin.Context) {
     var transactions []models.Transaction
     
     transactionStatus := c.Param("transaction_status")
@@ -89,6 +101,7 @@ func GetTransaksiByStatus(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
+
 
 func GetTransaksiByTwoStatus(c *gin.Context) {
     var transactions []models.Transaction
@@ -103,6 +116,21 @@ func GetTransaksiByTwoStatus(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
+
+func GetDeliveryByInvoiceNumber(c *gin.Context) {
+    var transactions []models.Transaction
+    
+    invoice_number := c.Param("invoice_number")
+    
+
+    if err := models.DB.Where("invoice_number = ?", invoice_number).Find(&transactions).Error; err!= nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+}
+
 
 
 func GetTransaksiCanceledReadyStok(c *gin.Context) {
@@ -230,7 +258,6 @@ func UpdateStatusByInvoice(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
-
 func UpdateTotalAfterDeliveryFee(c *gin.Context) {
     var transaction models.Transaction
 

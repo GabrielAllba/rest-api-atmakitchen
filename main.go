@@ -268,7 +268,9 @@ func main() {
 	{
 		transactions.POST("", transactioncontroller.Create)
 		transactions.GET("", transactioncontroller.Index)
+		transactions.GET("/delivery/:invoice_number", transactioncontroller.GetDeliveryByInvoiceNumber)
 		transactions.GET("/tampil/:transaction_status", transactioncontroller.GetTransaksiByStatus)
+		transactions.GET("/tampil/ayas/:transaction_status", transactioncontroller.GetTransaksiByStatusAyas)
 		transactions.GET("/pengiriman/:transaction_status", transactioncontroller.GetTransaksiByTwoStatus)
 		transactions.GET("/batal/:transaction_status", transactioncontroller.GetTransaksiCanceledReadyStok)
 		transactions.GET("/user/:userId", transactioncontroller.GetByUserID)
@@ -371,6 +373,6 @@ func main() {
 	// check auth middleware
 	r.GET("/api/validates", middleware.RequireAuth, customerauthcontroller.Validate)
 
-	r.Run("127.0.0.1:8000")
+	r.Run("127.0.0.1:5000")
 
 }
