@@ -68,11 +68,12 @@ func main() {
 	{
 		autologin.POST("/login", autologincontroller.Login)
 		autologin.POST("/logout", autologincontroller.Logout)
+		autologin.GET("/cekRole", autologincontroller.CekRole)
 	}
 
 	email := r.Group("/api/email")
 	{
-		email.POST("/send", emailcontroller.SendEmail)
+		email.POST("/sendResetEmail", emailcontroller.SendResetPasswordEmail)
 	}
 
 	// product

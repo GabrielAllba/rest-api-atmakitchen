@@ -11,6 +11,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func CekRole(c *gin.Context) {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email harus diisi"})
+		return
+	}
+
+	var user models.User // Gantilah dengan model user yang sesuai
+	models.DB.Preload("Role").First(&user, "email = ?", email)
+
+	if user.Id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email tidak ditemukan"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"role": user.Role.Name})
+}
 
 func Login(c *gin.Context) {
 	var req_user models.User
@@ -76,8 +93,6 @@ func Login(c *gin.Context) {
 	})
 }
 
-
-
 func Logout(c *gin.Context) {
 	c.SetCookie("Authorization", "", -1, "", "", false, true)
 
@@ -85,4 +100,3 @@ func Logout(c *gin.Context) {
 		"message": "Logout successful",
 	})
 }
-    
