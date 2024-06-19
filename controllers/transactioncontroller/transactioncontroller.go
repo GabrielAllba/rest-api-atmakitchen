@@ -33,297 +33,331 @@ func GetByUserID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
-    
+
 func Create(c *gin.Context) {
-    var transactions models.Transaction
+	var transactions models.Transaction
 
-    if err := c.BindJSON(&transactions); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.BindJSON(&transactions); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := models.DB.Create(&transactions).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create transactions"})
-        return
-    }
+	if err := models.DB.Create(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create transactions"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func Show(c *gin.Context) {
-    id := c.Param("id")
-    var transactions models.Transaction
+	id := c.Param("id")
+	var transactions models.Transaction
 
-    if err := models.DB.Preload("User").First(&transactions, id).Error; err != nil {
-        if err == gorm.ErrRecordNotFound {
-            c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found"})
-        } else {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transactions"})
-        }
-        return
-    }
+	if err := models.DB.Preload("User").First(&transactions, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transactions"})
+		}
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func Index(c *gin.Context) {
-    var transactions []models.Transaction
+	var transactions []models.Transaction
 
-    if err := models.DB.Preload("User").Find(&transactions).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := models.DB.Preload("User").Find(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func GetTransaksiByStatus(c *gin.Context) {
-    var transactions []models.Transaction
-    
-    transactionStatus := c.Param("transaction_status")
+	var transactions []models.Transaction
 
-    if err := models.DB.Preload("User").Where("transaction_status = ?", transactionStatus).Find(&transactions).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	transactionStatus := c.Param("transaction_status")
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	if err := models.DB.Preload("User").Where("transaction_status = ?", transactionStatus).Find(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func GetTransaksiByTwoStatus(c *gin.Context) {
-    var transactions []models.Transaction
-    
-    transactionStatus := c.Param("transaction_status")
-    statuses := strings.Split(transactionStatus, ",")
+	var transactions []models.Transaction
 
-    if err := models.DB.Preload("User").Where("transaction_status IN ?", statuses).Find(&transactions).Error; err!= nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	transactionStatus := c.Param("transaction_status")
+	statuses := strings.Split(transactionStatus, ",")
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	if err := models.DB.Preload("User").Where("transaction_status IN ?", statuses).Find(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
-
 func GetTransaksiCanceledReadyStok(c *gin.Context) {
-    var transactions []models.Transaction
-    
-    transactionStatus := c.Param("transaction_status")
+	var transactions []models.Transaction
 
-    now := time.Now().Format("2006-01-02")
+	transactionStatus := c.Param("transaction_status")
 
-    if err := models.DB.Preload("User").Where("transaction_status =?", transactionStatus).Where("tanggal_pemesanan <?", now).Find(&transactions).Error; err!= nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	now := time.Now().Format("2006-01-02")
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	if err := models.DB.Preload("User").Where("transaction_status =?", transactionStatus).Where("tanggal_pemesanan <?", now).Find(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func Delete(c *gin.Context) {
-    id := c.Param("id")
-    intId, err := strconv.Atoi(id)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-        return
-    }
+	id := c.Param("id")
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 
-    var transactions models.Transaction
-    if err := models.DB.First(&transactions, intId).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found"})
-        return
-    }
+	var transactions models.Transaction
+	if err := models.DB.First(&transactions, intId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "transactions not found"})
+		return
+	}
 
-    if err := models.DB.Delete(&transactions).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete transactions"})
-        return
-    }
+	if err := models.DB.Delete(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete transactions"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "transactions deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "transactions deleted successfully"})
 }
 
 func Update(c *gin.Context) {
-    var transactions models.Transaction
-    id := c.Param("id")
+	var transactions models.Transaction
+	id := c.Param("id")
 
-    if err := c.BindJSON(&transactions); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.BindJSON(&transactions); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := models.DB.Model(&models.Transaction{}).Where("id = ?", id).Updates(&transactions).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transactions"})
-        return
-    }
+	if err := models.DB.Model(&models.Transaction{}).Where("id = ?", id).Updates(&transactions).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transactions"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+	c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
 func UpdateStatus(c *gin.Context) {
-    var transaction models.Transaction
-    var transaction_detail models.TransactionDetail
+	var transaction models.Transaction
+	var transaction_detail models.TransactionDetail
+	var user models.User
 
-    id := c.Param("id")
-    transaction_status := c.Param("transaction_status")
+	id := c.Param("id")
+	transaction_status := c.Param("transaction_status")
 
-    // Fetch the transaction to get the InvoiceNumber
-    if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
-        return
-    }
+	// Fetch the transaction to get the InvoiceNumber
+	if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+		return
+	}
 
-    // Update the status of the transaction
-    if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
-        return
-    }
+	if transaction_status == "Ditolak" {
+		// Refund saldo user
+		if err := models.DB.Where("id = ?", transaction.UserId).First(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "User not found"})
+			return
+		}
 
-    // Update the status of the related transaction detail
-    if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
-        return
-    }
+		user.Balance += transaction.TransferNominal
+		if err := models.DB.Save(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to refund user balance"})
+			return
+		}
 
-    c.JSON(http.StatusOK, gin.H{"transaction": transaction})
+		// Return product stock
+
+		var transactionDetails []models.TransactionDetail
+		if err := models.DB.Where("invoice_number = ?", transaction.InvoiceNumber).Find(&transactionDetails).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch transaction details"})
+			return
+		}
+
+		for _, detail := range transactionDetails {
+			var product models.Product
+			if err := models.DB.Where("id = ?", detail.ProductId).First(&product).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Product not found"})
+				return
+			}
+
+			product.Stock += *detail.ProductQuantity
+			if err := models.DB.Save(&product).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update product stock"})
+				return
+			}
+		}
+	}
+
+	// Update the status of the transaction
+	if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
+		return
+	}
+
+	// Update the status of the related transaction detail
+	if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
 
 func UpdateStatusByTransactionDetail(c *gin.Context) {
-    
-    var transaction_detail models.TransactionDetail
 
-    id := c.Param("id")
-    transaction_status := c.Param("transaction_status")
+	var transaction_detail models.TransactionDetail
 
-    // Update the status of the related transaction detail
-    if err := models.DB.Model(&transaction_detail).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
-        return
-    }
+	id := c.Param("id")
+	transaction_status := c.Param("transaction_status")
 
-    c.JSON(http.StatusOK, gin.H{"transaction_detail": transaction_detail})
+	// Update the status of the related transaction detail
+	if err := models.DB.Model(&transaction_detail).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"transaction_detail": transaction_detail})
 }
 
 func UpdateStatusByInvoice(c *gin.Context) {
-    var transaction models.Transaction
-    var transaction_detail models.TransactionDetail
+	var transaction models.Transaction
+	var transaction_detail models.TransactionDetail
 
-    invoice_number := c.Param("invoice_number")
-    transaction_status := c.Param("transaction_status")
+	invoice_number := c.Param("invoice_number")
+	transaction_status := c.Param("transaction_status")
 
-    // Fetch the transaction to get the InvoiceNumber
-    if err := models.DB.Where("invoice_number = ?", invoice_number).First(&transaction).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
-        return
-    }
+	// Fetch the transaction to get the InvoiceNumber
+	if err := models.DB.Where("invoice_number = ?", invoice_number).First(&transaction).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+		return
+	}
 
-    // Update the status of the transaction
-    if err := models.DB.Model(&transaction).Where("invoice_number = ?", invoice_number).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
-        return
-    }
+	// Update the status of the transaction
+	if err := models.DB.Model(&transaction).Where("invoice_number = ?", invoice_number).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
+		return
+	}
 
-    // Update the status of the related transaction detail
-    if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
-        return
-    }
+	// Update the status of the related transaction detail
+	if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transaction": transaction})
+	c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
 
 func UpdateTotalAfterDeliveryFee(c *gin.Context) {
-    var transaction models.Transaction
+	var transaction models.Transaction
 
-    id := c.Param("id")
+	id := c.Param("id")
 
-    // Fetch the transaction to get the current values
-    if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
-        return
-    }
+	// Fetch the transaction to get the current values
+	if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+		return
+	}
 
-    // Calculate the new transfer_nominal
-    newTransferNominal := transaction.TotalPrice + transaction.DeliveryFee
+	// Calculate the new transfer_nominal
+	newTransferNominal := transaction.TotalPrice + transaction.DeliveryFee
 
-    // Update the transfer_nominal of the transaction
-    if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transfer_nominal", newTransferNominal).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction total"})
-        return
-    }
+	// Update the transfer_nominal of the transaction
+	if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transfer_nominal", newTransferNominal).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction total"})
+		return
+	}
 
-    // Update the transaction object to reflect the new value
-    transaction.TransferNominal = newTransferNominal
+	// Update the transaction object to reflect the new value
+	transaction.TransferNominal = newTransferNominal
 
-    c.JSON(http.StatusOK, gin.H{"transaction": transaction})
+	c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
 
 func UpdateBuktiPembayaran(c *gin.Context) {
-    // Get the transaction ID from the URL parameters
-    invoice_number := c.Param("invoice_number")
-    
-    // Handle file upload for photo
-    file, fileHeader, err := c.Request.FormFile("photo")
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
-        return
-    }
-    defer file.Close()
+	// Get the transaction ID from the URL parameters
+	invoice_number := c.Param("invoice_number")
 
-    // Generate a unique filename for the uploaded file
-    filename := uuid.New().String() + filepath.Ext(fileHeader.Filename)
-    filePath := filepath.Join("images", filename) // Assuming "images" folder exists in your project directory
-    fullFilePath := filepath.Join("/", filePath)  // Full file path including the leading "/"
+	// Handle file upload for photo
+	file, fileHeader, err := c.Request.FormFile("photo")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+	defer file.Close()
 
-    // Save the uploaded file
-    if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-        return
-    }
+	// Generate a unique filename for the uploaded file
+	filename := uuid.New().String() + filepath.Ext(fileHeader.Filename)
+	filePath := filepath.Join("images", filename) // Assuming "images" folder exists in your project directory
+	fullFilePath := filepath.Join("/", filePath)  // Full file path including the leading "/"
 
-    fixFullFilePath := strings.Replace(fullFilePath, "\\", "/", -1)
+	// Save the uploaded file
+	if err := c.SaveUploadedFile(fileHeader, filePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
 
-    
+	fixFullFilePath := strings.Replace(fullFilePath, "\\", "/", -1)
 
-    // Fetch the transaction to ensure it exists
-    var transaction models.Transaction
-    if err := models.DB.Where("invoice_number = ?", invoice_number).First(&transaction).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
-        return
-    }
+	// Fetch the transaction to ensure it exists
+	var transaction models.Transaction
+	if err := models.DB.Where("invoice_number = ?", invoice_number).First(&transaction).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+		return
+	}
 
-    // Update the payment_proof column
-    if err := models.DB.Model(&transaction).Where("invoice_number = ?", invoice_number).Update("payment_proof", fixFullFilePath).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update payment proof"})
-        return
-    }
+	// Update the payment_proof column
+	if err := models.DB.Model(&transaction).Where("invoice_number = ?", invoice_number).Update("payment_proof", fixFullFilePath).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update payment proof"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transaction": transaction, "payment_proof": fixFullFilePath})
+	c.JSON(http.StatusOK, gin.H{"transaction": transaction, "payment_proof": fixFullFilePath})
 }
 
 func UpdateStatusPembayaran(c *gin.Context) {
-    var transaction models.Transaction
-    var transaction_detail models.TransactionDetail
+	var transaction models.Transaction
+	var transaction_detail models.TransactionDetail
 
-    id := c.Param("id")
-    transaction_status := c.Param("transaction_status")
+	id := c.Param("id")
+	transaction_status := c.Param("transaction_status")
 
-    // Fetch the transaction to get the InvoiceNumber
-    if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
-        return
-    }
+	// Fetch the transaction to get the InvoiceNumber
+	if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+		return
+	}
 
-    // Update the status of the transaction
-    if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
-        return
-    }
+	// Update the status of the transaction
+	if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
+		return
+	}
 
-    // Update the status of the related transaction detail
-    if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
-        return
-    }
+	// Update the status of the related transaction detail
+	if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"transaction": transaction})
+	c.JSON(http.StatusOK, gin.H{"transaction": transaction})
 }
