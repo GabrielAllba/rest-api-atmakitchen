@@ -3,6 +3,8 @@ package transactiondetailcontroller
 import (
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
 	"backend-atmakitchen/models"
 
@@ -148,6 +150,20 @@ func Index(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"transaction_details": transaction_details})
 }
 
+func GetTransaksiBatal(c *gin.Context) {
+    var transaction_details []models.TransactionDetail
+
+    // Get the current date
+    currentDate := time.Now().Format("2006-01-02")
+
+    if err := models.DB.Preload("Product").Preload("Hampers").Where("tanggal_pengiriman < ? AND transaction_status = ?", currentDate, "Menunggu Pembayaran").Find(&transaction_details).Find(&transaction_details).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction_details": transaction_details})
+}
+
 func ProsesToday(c *gin.Context) {
     var transaction_details []models.TransactionDetail
 
@@ -158,7 +174,7 @@ func ProsesToday(c *gin.Context) {
     }
 
     // Preload Product and Hamper, filter by the given date, and status 'Diterima'
-    if err := models.DB.Preload("Product").Preload("Hampers").Where("DATE(tanggal_pengiriman) = ? AND transaction_status = ?", date, "Diterima").Find(&transaction_details).Error; err != nil {
+    if err := models.DB.Preload("Product").Preload("Hampers").Preload("Transactions").Where("DATE(tanggal_pengiriman) = ? AND transaction_status = ?", date, "Diterima").Find(&transaction_details).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
@@ -301,4 +317,31 @@ func GetPhotosByUserID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"photos": photos})
+}
+
+func Search(c *gin.Context) {
+    query := c.Query("query")
+    var transactionDetails []models.TransactionDetail
+
+    // Lowercase the query for case-insensitive search
+    query = strings.ToLower(query)
+
+    // Attempt to parse the query as a date
+    dateQuery, err := time.Parse("2006-01-02", query)
+    if err == nil {
+        // Search by date
+        models.DB.Where("DATE(transaction_date) = ?", dateQuery.Format("2006-01-02")).Find(&transactionDetails)
+    } else {
+        // Search by product name, invoice number, or price
+        models.DB.Joins("JOIN products ON transaction_details.product_id = products.id").
+            Where("LOWER(products.name) LIKE ? OR LOWER(transaction_details.invoice_number) LIKE ? OR transaction_details.price LIKE ?",
+            "%"+query+"%", "%"+query+"%", "%"+query+"%").Find(&transactionDetails)
+    }
+
+    // Prepare response
+    responseData := gin.H{
+        "transactionDetails": transactionDetails,
+    }
+
+    c.JSON(http.StatusOK, responseData)
 }

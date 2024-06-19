@@ -66,6 +66,17 @@ func Show(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
 
+func ShowAllTransaction(c *gin.Context) {
+    var transactions []models.Transaction
+
+    if err := models.DB.Preload("User").Find(&transactions).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch transactions"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+}
+
 func Index(c *gin.Context) {
     var transactions []models.Transaction
 
@@ -208,6 +219,76 @@ func UpdateStatus(c *gin.Context) {
 
     // Update the status of the related transaction detail
     if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transaction": transaction})
+}
+func UpdateStatusBatal(c *gin.Context) {
+    var transactionDetails []models.TransactionDetail
+    var product []models.Product
+
+    currentDate := time.Now().Format("2006-01-02")
+
+    // Step 1: Update transaction details status to "Dibatalkan"
+    if err := models.DB.Model(transactionDetails).
+        Where("tanggal_pengiriman < ? AND transaction_status = ?", currentDate, "Menunggu Pembayaran").
+        Update("transaction_status", "Dibatalkan").Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction details status"})
+        return
+    }
+
+    // Step 2: Fetch the updated transaction details to get the product IDs
+    if err := models.DB.Where("transaction_status = ?", "Dibatalkan").Find(&transactionDetails).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch updated transaction details"})
+        return
+    }
+
+    // Step 3: Update the stock of the corresponding products
+    for _, detail := range transactionDetails {
+        if err := models.DB.Model(&product).
+            Where("id = ?", detail.ProductId).
+            UpdateColumn("stock", gorm.Expr("stock + ?", 1)).Error; err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update stock for product ID " })
+            return
+        }
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Transaction status and product stock updated successfully"})
+}
+
+
+
+func UpdateStatusandStok(c *gin.Context) {
+    var transaction models.Transaction
+    var transaction_detail models.TransactionDetail
+    // var quota models.Quota
+    var product models.Product
+
+    id := c.Param("id")
+    transaction_status := c.Param("transaction_status")
+
+    // Fetch the transaction to get the InvoiceNumber
+    if err := models.DB.Where("id = ?", id).First(&transaction).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"message": "Transaction not found"})
+        return
+    }
+
+    // Update the status of the transaction
+    if err := models.DB.Model(&transaction).Where("id = ?", id).Update("transaction_status", transaction_status).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction status"})
+        return
+    }
+
+    // Update the status of the related transaction detail
+    if err := models.DB.Model(&transaction_detail).Where("invoice_number = ?", transaction.InvoiceNumber).Update("transaction_status", transaction_status).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
+        return
+    }
+
+    newStock := product.Stock + 1;
+    if err := models.DB.Model(&product).Where("id = ?", transaction_detail.ProductId).Update("stock",newStock ).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to update transaction detail status"})
         return
     }

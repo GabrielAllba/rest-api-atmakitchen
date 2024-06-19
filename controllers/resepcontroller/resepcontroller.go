@@ -12,12 +12,6 @@ import (
 
 
 func Create(c *gin.Context) {
-    // Parse form data including file upload
-    // err := c.Request.ParseMultipartForm(10 << 20) // 10 MB
-    // if err != nil {
-    //     c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse form data"})
-    //     return
-    // }
 
     // Extract form fields
     id := c.PostForm("id")
@@ -56,6 +50,21 @@ func Create(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"resep": resep})
 }
 
+func CreateNew(c *gin.Context){
+    var transactions models.Transaction
+
+    if err := c.BindJSON(&transactions); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    if err := models.DB.Create(&transactions).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create transactions"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+}
 
 func Update(c *gin.Context) {
     // Extract the product ID from the request parameters
@@ -203,75 +212,75 @@ func GetLatestResepID(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"latest_resep_id": latesResepId})
 }
 
-func GetDetailResep(c *gin.Context){
-    var bahan_resep models.BahanResep
-    resepID := c.Param("resep_id") 
+// func GetDetailResep(c *gin.Context){
+//     var bahan_resep models.BahanResep
+//     resepID := c.Param("resep_id") 
 
     
-    if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahan_resep, resepID).Error; err != nil {
-        switch err {
-        case gorm.ErrRecordNotFound:
-            c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Recipe not found"}) 
-            return
-        default:
-            c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-            return
-        }
-    }
+//     if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahan_resep, resepID).Error; err != nil {
+//         switch err {
+//         case gorm.ErrRecordNotFound:
+//             c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Recipe not found"}) 
+//             return
+//         default:
+//             c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+//             return
+//         }
+//     }
     
-    c.JSON(http.StatusOK, gin.H{"bahan_resep": bahan_resep})
-}
+//     c.JSON(http.StatusOK, gin.H{"bahan_resep": bahan_resep})
+// }
 
 
 // product resep
 
-func CreateDetail(c *gin.Context){
-    resepId := c.Param("resep_id")
-    fixresepId, err := strconv.ParseInt(resepId, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid resep id value"})
-        return
-    }
-    bahanIdStr := c.PostForm("bahan_id")
-    quantityStr := c.PostForm("quantity")
-    unitStr := c.PostForm("unit")
-    productIdStr := c.PostForm("product_id")
+// func CreateDetail(c *gin.Context){
+//     resepId := c.Param("resep_id")
+//     fixresepId, err := strconv.ParseInt(resepId, 10, 32)
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid resep id value"})
+//         return
+//     }
+//     bahanIdStr := c.PostForm("bahan_id")
+//     quantityStr := c.PostForm("quantity")
+//     unitStr := c.PostForm("unit")
+//     productIdStr := c.PostForm("product_id")
 
-    fixBahanId, err := strconv.ParseInt(bahanIdStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
-        return
-    }
-    fixProductId, err := strconv.ParseInt(productIdStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
-        return
-    }
-    fixQuantity, err := strconv.ParseInt(quantityStr, 10, 32)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity value"})
-        return
-    }
+//     fixBahanId, err := strconv.ParseInt(bahanIdStr, 10, 32)
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
+//         return
+//     }
+//     fixProductId, err := strconv.ParseInt(productIdStr, 10, 32)
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid bahan id value"})
+//         return
+//     }
+//     fixQuantity, err := strconv.ParseInt(quantityStr, 10, 32)
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid quantity value"})
+//         return
+//     }
 
-    bahanResep := models.BahanResep{
-        ResepId: int(fixresepId),
-        BahanId: int(fixBahanId),
-        Quantity: float64(fixQuantity),
-        Unit: unitStr,
-        ProductId: int(fixProductId),
-    }
+//     bahanResep := models.BahanResep{
+//     ResepId: int(fixresepId),
+//         BahanId: int(fixBahanId),
+//         Quantity: float64(fixQuantity),
+//         Unit: unitStr,
+//         ProductId: int(fixProductId),
+//     }
 
-    // Save the hampers to the database
-    if err := models.DB.Create(&bahanResep).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bahan resep"})
-        return
-    }
+//     // Save the hampers to the database
+//     if err := models.DB.Create(&bahanResep).Error; err != nil {
+//         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bahan resep"})
+//         return
+//     }
 
-    // Preload Hampers, Product, and ProductType
-    if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahanResep).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload associated models"})
-        return
-    }
+//     // Preload Hampers, Product, and ProductType
+//     if err := models.DB.Preload("Resep").Preload("Bahan").First(&bahanResep).Error; err != nil {
+//         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to preload associated models"})
+//         return
+//     }
 
-    c.JSON(http.StatusOK, gin.H{"bahan_resep": bahanResep})
-}
+//     c.JSON(http.StatusOK, gin.H{"bahan_resep": bahanResep})
+// }
