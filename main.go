@@ -233,6 +233,8 @@ func main() {
 		users.GET("/:id/balance", usercontroller.GetBalance)
 		users.POST("/:id/withdraw", usercontroller.WithdrawBalance)
 		users.GET("/:id/withdraw/history", usercontroller.GetWithdrawHistory)
+		users.GET("/withdraw/history", usercontroller.GetAllWithdrawHistory)
+		users.PUT("/withdraw/history/:id/:status", usercontroller.UpdateWithdrawStatus)
 	}
 
 	token := r.Group("/api/token")
