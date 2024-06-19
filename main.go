@@ -179,15 +179,16 @@ func main() {
 	//resep
 	resep := r.Group("/api/resep")
 	{
-		resep.POST("", resepcontroller.Create)
+		// resep.POST("", resepcontroller.Create)
+		resep.POST("", bahanresepcontroller.Create)
 		resep.GET("", resepcontroller.Index)
 		resep.GET("/:id", resepcontroller.Show)
 		resep.GET("/search", resepcontroller.Search)
 		resep.DELETE("/:id", resepcontroller.Delete)
 		resep.PUT("/:id", resepcontroller.Update)
 		resep.GET("/latest_id", resepcontroller.GetLatestResepID)
-		resep.POST("/detail/:resep_id", resepcontroller.CreateDetail)
-		resep.GET("/detail/:resep_id", resepcontroller.GetDetailResep)
+		// resep.POST("/detail/:resep_id", resepcontroller.CreateDetail)
+		// resep.GET("/detail/:resep_id", resepcontroller.GetDetailResep)
 		// resep.GET("/type", resepcontroller.SearchType);
 		// resep.GET("/type/search", resepcontroller.SearchProductByType);
 	}
@@ -284,6 +285,7 @@ func main() {
 
 		// update by transaction detail id
 		transactions.PUT("/status/detail/:id/:transaction_status", transactioncontroller.UpdateStatusByTransactionDetail)
+		transactions.PUT("/status/updatebatal", transactioncontroller.UpdateStatusBatal)
 	}
 
 	// transaction_detail
@@ -291,6 +293,8 @@ func main() {
 	{
 		transaction_details.POST("", transactiondetailcontroller.Create)
 		transaction_details.GET("", transactiondetailcontroller.Index)
+		transaction_details.GET("/batal", transactiondetailcontroller.GetTransaksiBatal)
+		transaction_details.GET("/search", transactiondetailcontroller.Search)
 		transaction_details.GET("/proses_today/:tanggal_pengiriman", transactiondetailcontroller.ProsesToday)
 		transaction_details.GET("/invoice/:invoiceNumber", transactiondetailcontroller.GetByInvoiceNumber)
 		transaction_details.GET("/user/:userId", transactiondetailcontroller.GetByUserID)
