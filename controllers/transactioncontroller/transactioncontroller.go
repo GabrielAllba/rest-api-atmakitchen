@@ -100,6 +100,18 @@ func GetTransaksiByStatus(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"transactions": transactions})
 }
+func GetTransaksiDetailByStatus(c *gin.Context) {
+    var transactions []models.Transaction
+    
+    transactionStatus := c.Param("transaction_status")
+
+    if err := models.DB.Preload("User").Where("transaction_status = ?", transactionStatus).Find(&transactions).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"transactions": transactions})
+}
 
 func GetTransaksiByTwoStatus(c *gin.Context) {
     var transactions []models.Transaction
